@@ -1,0 +1,37 @@
+{
+  "summary": "End-to-end testing of Iteration-8 features (Bookmarks + AI Study Buddy) + full regression. Wrote /app/backend/tests/test_bookmarks_ai_backend.py with 15 tests covering every high-risk area E1 called out (cross-user isolation for bookmarks AND AI sessions, POST-body ownership-injection guard, duplicate-bookmark idempotency, file_url NOT exposed in hydrated shelf, validation bounds for /ai/ask, /ai/summarise, /ai/practice, pre-seeded 429 rate-limit path, unauth 401 on all new endpoints). Real LLM calls limited to 2 (/api/ai/ask start + same-session follow-up) — both returned real content and session continuity is preserved. Full regression suites all green: test_auth_backend 38/38, test_step1_backend+test_admin_backend 46/46, test_lockout_regression 6/6, test_rbac_iter6 17/17, plus new 15/15 = 122/122. Manually verified the missing-EMERGENT_LLM_KEY path returns 503 with a readable detail (temporarily removed key from .env, restarted backend, confirmed, then restored env and restarted). Browser test on desktop: login -> dashboard -> both tool tiles present -> /bookmarks -> shows empty-state with Browse-resources action -> add via /resources -> item appears on shelf -> untoggle -> empty-state returns; signed-out /resources shows 0 bookmark toggles as required. Mobile 390px: /study-buddy and /bookmarks have no horizontal scroll, bottom nav renders all 5 items. Fixed one testid bug (bottom-nav-study-ai was rendered as 'bottom-nav-study ai' because label 'Study AI' contains a space and wasn't slugified).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_bookmarks_ai_backend.py",
+    "/app/test_reports/pytest/bookmarks_ai.xml",
+    "/app/test_reports/pytest/auth.xml",
+    "/app/test_reports/pytest/step1_admin.xml",
+    "/app/test_reports/pytest/lockout.xml",
+    "/app/test_reports/pytest/rbac.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "BottomNav slugifies the mobile-nav testid with `label.toLowerCase()` only. Any label containing whitespace (e.g. 'Study AI') would produce 'bottom-nav-study ai' which is unusable as a CSS/DOM selector and does NOT match the contract data-testid `bottom-nav-study-ai` from the spec. Fixed by replacing whitespace with '-'. Consider also normalising the desktop `nav-link-*` and `nav-mobile-link-*` testids the same way to future-proof.",
+    "routers/student.py catches ownership injection correctly (server always uses str(user['_id']) from the session and ignores any extra fields in the Pydantic payload because BookmarkPayload only whitelists resource_id). This is the right shape — good defense-in-depth.",
+    "routers/ai.py deletes messages then session (correct ordering), and own_session()'s single find_one with a user_id equality guard means a non-owner request is indistinguishable from a missing session (returns 404, never 403+content). This is the right leak-avoiding behaviour.",
+    "routers/ai.py: history_for() rebuilds prior turns from ai_messages, but system prompt only carries the LAST 12 turns (HISTORY_TURNS*2 messages). No unbounded memory growth per session. Good.",
+    "Rate limit key `ai:<user_id>` is per-user; if a user maintains multiple browser sessions it still shares the same 40/hour quota. Correct.",
+    "The 15-test new suite runs in ~12s (2 real LLM calls). All other AI tests use pre-seeded DB state so we do not burn credits."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_bookmarks_ai_backend.py (created)",
+    "/app/frontend/src/components/layout/BottomNav.jsx (slugify testId for labels with spaces)"
+  ],
+  "success_rate": {"backend": "100% (122/122)", "frontend": "100% on tested flows"},
+  "test_credentials": "admin@cgstudentportal.in / CgAdmin@2026 ; shelfui@example.com / StrongPass1 (recreated during this run — see note below)",
+  "seed_data_creation": "IMPORTANT: shelfui@example.com was MISSING from the users collection when this iteration started (deleted by a prior iteration's cleanup fixture despite being listed as a canonical fixture user). Re-created via POST /api/auth/register with password StrongPass1 (status=pending_verification, which is fine — bookmarks and AI do not require verified email). Final DB state: users collection contains ONLY admin@cgstudentportal.in and shelfui@example.com; bookmarks, ai_sessions, ai_messages, rate_limits, login_attempts, auth_tokens all empty.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The new backend suite is /app/backend/tests/test_bookmarks_ai_backend.py and takes ~12s. Its cleanup fixture preserves admin AND shelfui by email — do NOT change that list. If a future run needs to keep additional canonical users, add them to the `$nin` list in the cleanup. Running with `-o addopts=''` is required because pytest.ini uses a discovery pattern that otherwise picks up the whole tests dir. The 429-rate-limit test seeds `rate_limits` with count=40 keyed 'ai:<user_id>' so we never spend real LLM credits on that path; adopt the same pattern for future rate-limit tests. Cross-user ownership tests for /ai/sessions pre-seed a session+messages directly into Mongo rather than doing a real /ai/ask, which is the cheapest way to exercise the own_session() 404 branch. The missing-EMERGENT_LLM_KEY 503 path was verified manually (sed out of backend/.env, supervisorctl restart backend, curl -> 503, restore env, restart) — no automated test because it requires restarting the backend which would interrupt the pytest session.",
+  "rca of the issue": "One minor bug found and fixed: `BottomNav.jsx` was producing `data-testid=\"bottom-nav-study ai\"` (with a literal space) for the mobile 'Study AI' item because it did `label.toLowerCase()` without whitespace normalisation. This broke the contract testid `bottom-nav-study-ai` documented by E1 and would break any automated test using that selector. Fixed with `.replace(/\\s+/g, '-')`. All other spec items — including the harder ownership-isolation checks that E1 flagged as critical — are implemented correctly (server always derives user_id from the session cookie; extra JSON fields in the request body are silently ignored thanks to the strict Pydantic model; cross-user reads of /ai/sessions/{id} return 404 not 403+content)."
+}

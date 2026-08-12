@@ -1,4 +1,5 @@
 import { BadgeCheck, Crown, Download, Eye, FileText } from "lucide-react";
+import { BookmarkButton } from "@/components/resources/BookmarkButton";
 import { fmtBytes, fmtDate, fmtNumber } from "@/utils/format";
 
 const Meta = ({ icon: Icon, children }) => (
@@ -68,6 +69,13 @@ export const ResourceCard = ({ resource, testId }) => (
       <Meta icon={Eye}>{fmtNumber(resource.views)}</Meta>
       <span className="text-xs text-muted/70">{fmtBytes(resource.file_size)}</span>
       <span className="ml-auto text-xs text-muted/70">{fmtDate(resource.created_at)}</span>
+    </div>
+
+    <div className="mt-4 flex items-center justify-between gap-3">
+      <span className="text-xs text-muted/70">
+        {resource.category || "Study material"}
+      </span>
+      <BookmarkButton resourceId={resource.id} />
     </div>
   </article>
 );

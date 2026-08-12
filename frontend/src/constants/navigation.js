@@ -8,8 +8,8 @@ export const NAV_LINKS = [
 export const MOBILE_NAV = [
   { label: "Home", to: "/", icon: "Home", enabled: true },
   { label: "Search", to: "/resources", icon: "Search", enabled: true },
-  { label: "Resources", to: "/resources", icon: "FileText", enabled: true },
-  { label: "Community", to: "/community", icon: "Users", enabled: false },
+  { label: "Study AI", to: "/study-buddy", icon: "Sparkles", enabled: true },
+  { label: "Shelf", to: "/bookmarks", icon: "Bookmark", enabled: true },
   { label: "Profile", to: "/profile", icon: "User", enabled: true },
 ];
 
@@ -19,8 +19,8 @@ export const FOOTER_SECTIONS = [
     links: [
       { label: "Home", to: "/" },
       { label: "How it works", to: "/#how-it-works" },
-      { label: "Earning (Step 6)", to: null },
-      { label: "Premium (Step 7)", to: null },
+      { label: "AI Study Buddy", to: "/study-buddy" },
+      { label: "My shelf", to: "/bookmarks" },
     ],
   },
   {

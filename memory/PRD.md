@@ -80,8 +80,18 @@ bcrypt hashing, httpOnly + Secure cookies (samesite from APP_ENV), DB-resolved p
 ### Verified
 107/107 backend tests (38 auth + 46 step1/admin + 6 lockout + 17 RBAC) plus desktop and 390px mobile browser flows. One bug found and fixed: students could read `/api/admin/overview` because it was gated on a permission students legitimately hold.
 
+## Implemented — Bookmarks + AI Study Buddy (2026-06)
+- **Bookmark shelf**: `bookmarks` collection (unique per user+resource), `GET/POST/DELETE /api/me/bookmarks`, `GET /api/me/bookmarks/ids`. Bookmark icon on every ResourceCard (hidden when signed out), `/bookmarks` page, dashboard tile. Ownership always from the session — request bodies cannot set `user_id`.
+- **AI Study Buddy** (`/study-buddy`): three modes — ask a doubt (GPT-5.4, multi-turn history from `ai_messages`), summarise pasted notes (Gemini 3 Flash), generate practice questions (GPT-5.4). Session sidebar with per-session delete. Emergent Universal Key; 40 requests/hour per user; missing key surfaces a readable 503; cross-user session access returns 404.
+- Bottom nav is now Home / Search / Study AI / Shelf / Profile.
+- Verified: 122/122 backend tests, zero issues reported.
+
+## Step 4 — Study material management (NOT STARTED)
+Blocked on one decision: which object storage provider to use (Emergent-managed object storage vs Cloudflare R2 / AWS S3). Scope agreed with the user: real file upload (PDF/JPG/PNG/DOC/PPT) with server-side MIME + signature validation, private-until-approved storage, 5-step upload wizard at `/dashboard/uploads/new`, statuses DRAFT→UPLOADING→PENDING→UNDER_REVIEW→APPROVED/REJECTED/CHANGES_REQUESTED/ARCHIVED/FAILED, SHA-256 duplicate detection, resource versioning, `/dashboard/uploads` tabs, `/admin/uploads` review queue + `/admin/uploads/:id` detail with approve/reject/request-changes/archive, self-approval impossible, review audit log, notifications, `/copyright` complaint workflow, SEO slugs, secure counters, rate limits. No coins — but emit a `RESOURCE_APPROVED` event hook for the future coin ledger.
+
 ## Backlog
 ### P0
+- Step 4 as scoped above.
 - Google OAuth and phone/SMS OTP if the user later wants them.
 - Explicit `CORS_ORIGINS` allowlist for production.
 ### P1

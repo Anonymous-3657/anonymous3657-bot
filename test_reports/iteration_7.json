@@ -1,0 +1,33 @@
+{
+  "summary": "Independent re-verification of the Emergent deployment /health fix on the CURRENT code (post Step 2 auth layer, httpx dep, email service, require_staff admin gate). /health returns 200 on 127.0.0.1:8001 via HTTP/1.0 exactly as the k8s probe calls it, and again via HTTP/1.1. It is registered on the app root before the /api router, calls no database, and passes through the security-headers middleware with headers intact and status 200. Full backend regression: 38 (auth) + 46 (step1+admin) + 6 (lockout) + 17 (rbac) = 107/107 PASSED. Startup logs show 'Indexes ensured; admin seed: unchanged' with no traceback. Admin login sets HttpOnly+Secure+SameSite=none access/refresh cookies, /api/auth/me returns 200 with the admin user. Forgot-password for an existing user returns 200 with the generic message; email graceful degradation is empirically confirmed from live logs (httpx 422 responses from the Emergent email API are logged as ERROR by email_service but swallowed inside send_email, and /api/auth/forgot-password still returns 200). All SPA deep links (/login, /register, /verify-email, /reset-password, /dashboard, /profile, /admin/login) return 200 via the external ingress. Public endpoints /api/stats, /api/categories, /api/resources, /api/universities all 200. Conclusion: the reported /health 404 is a STALE-log artefact; the current image is healthy. User just needs to trigger a fresh deployment.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_auth_backend.py",
+    "/app/backend/tests/test_step1_backend.py",
+    "/app/backend/tests/test_admin_backend.py",
+    "/app/backend/tests/test_lockout_regression.py",
+    "/app/backend/tests/test_rbac_iter6.py",
+    "/app/test_reports/pytest/auth.xml",
+    "/app/test_reports/pytest/step1_admin.xml",
+    "/app/test_reports/pytest/lockout.xml",
+    "/app/test_reports/pytest/rbac.xml"
+  ],
+  "action_items": [
+    "No code changes required. Ask the user to trigger a fresh Emergent deployment — the /health 404 lines in the pasted logs are from a pre-fix pod; the current code returns 200 on GET /health from the probe (verified via HTTP/1.0 to 127.0.0.1:8001)."
+  ],
+  "critical_code_review_comments": [
+    "email_service logs ERROR (not WARNING) when httpx 422s come back from https://integrations.emergentagent.com/api/v1/email/send during tests. The exception is correctly swallowed and callers continue, but the log level is misleading — consider downgrading transient send failures to WARNING to keep ERROR reserved for truly actionable events.",
+    "POST /api/auth/logout returns 200 and clears cookies, but existing JWTs remain valid until expiry because there is no server-side token/session revocation list. This is a common stateless-JWT trade-off (and it is what the tests expect), but worth calling out explicitly in security docs.",
+    "server.py mounts CORSMiddleware AFTER include_router — Starlette applies middleware in reverse-registration order so this still works, but the more conventional order is to add all middleware before including routers to avoid confusion for future readers.",
+    "server.py's global @app.exception_handler(Exception) will swallow FastAPI's own HTTPException-derived 4xx into a 500 in some Starlette versions if not scoped carefully; today it is fine because HTTPException is handled by FastAPI's own handler first, but a future refactor should use @app.exception_handler(StarletteHTTPException) explicitly or narrow this to Exception subclasses that are not HTTPException."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "not tested (per request)"},
+  "test_credentials": "admin@cgstudentportal.in / CgAdmin@2026 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None persisted. Test suites created transient users which were purged; final users collection contains only admin@cgstudentportal.in. auth_tokens/otp_codes/rate_limits/login_attempts also cleared.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The /health deployment probe fix is stable across iterations 4, 6 and now 7. If the user reports the same 404 log again with identical timestamps as before, treat it as a stale-log/redeploy issue rather than a code regression. Full backend suites (107 tests) are green; use them as the regression baseline. Do NOT touch EMERGENT_EMAIL_KEY / EMAIL_FROM_NAME in .env — degradation is already proven by the httpx 422s in backend.err.log being swallowed while /api/auth/forgot-password returns 200. Login payload uses field 'email' (not 'identifier'); registration requires the full profile payload (name, phone, confirm_password, university_id, course_id, semester_or_year, accept_terms, accept_privacy).",
+  "rca of the issue": "No live bug. The pasted 'GET /health -> 404' log lines are timestamp-identical to iteration-4's pre-fix logs. On the current image, /health is defined at line 26 of server.py directly on `app` (before api_router mount), returns {'status':'ok'} with 200 including full security headers, and is confirmed via `curl --http1.0 http://127.0.0.1:8001/health` (the same call the k8s probe makes). Mitigation: user triggers a redeploy so the running pod matches the current code."
+}

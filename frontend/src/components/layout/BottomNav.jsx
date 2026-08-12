@@ -12,7 +12,7 @@ export const BottomNav = () => (
     <ul className="grid grid-cols-5">
       {MOBILE_NAV.map((item) => {
         const Icon = Icons[item.icon] || Icons.Circle;
-        const testId = `bottom-nav-${item.label.toLowerCase()}`;
+        const testId = `bottom-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`;
         if (!item.enabled) {
           return (
             <li key={item.label}>

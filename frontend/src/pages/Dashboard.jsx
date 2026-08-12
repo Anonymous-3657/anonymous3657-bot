@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, BadgeCheck, BookOpen, Building2, FileText, GraduationCap } from "lucide-react";
+import {
+  AlertTriangle,
+  BadgeCheck,
+  Bookmark,
+  BookOpen,
+  Building2,
+  FileText,
+  GraduationCap,
+  Sparkles,
+} from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
@@ -13,10 +22,28 @@ import { api } from "@/services/api";
 import { useSeo } from "@/hooks/useSeo";
 
 const UPCOMING = [
-  { label: "Bookmarks", detail: "Save papers and notes for later" },
   { label: "My downloads", detail: "Everything you have opened" },
   { label: "My uploads", detail: "Share notes and help juniors" },
   { label: "Notifications", detail: "Exam and result alerts" },
+];
+
+const TOOLS = [
+  {
+    to: "/study-buddy",
+    testId: "dashboard-study-buddy-link",
+    icon: Sparkles,
+    tint: "bg-brand-accent/12 text-brand-accent",
+    title: "AI Study Buddy",
+    detail: "Ask doubts, summarise notes, generate practice questions.",
+  },
+  {
+    to: "/bookmarks",
+    testId: "dashboard-bookmarks-link",
+    icon: Bookmark,
+    tint: "bg-brand-primary/12 text-brand-primary",
+    title: "My shelf",
+    detail: "Every paper and note you saved.",
+  },
 ];
 
 export default function Dashboard() {
@@ -27,17 +54,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     const load = async () => {
-      const [course, resources] = await Promise.all([
-        user.course_id
-          ? api.courses({ limit: 100 }).then((d) => d.items.find((c) => c.id === user.course_id))
-          : Promise.resolve(null),
+      const [courses, resources] = await Promise.all([
+        api.courses({ limit: 100 }),
         api.resources({
           limit: 6,
           sort: "recent",
           university_id: user.university_id || undefined,
         }),
       ]);
-      setData({ course, resources: resources.items });
+      setData({
+        course: courses.items.find((c) => c.id === user.course_id) || null,
+        resources: resources.items,
+      });
     };
     load();
   }, [user.course_id, user.university_id]);
@@ -100,6 +128,27 @@ export default function Dashboard() {
           ))}
         </section>
 
+        <section className="mt-14 grid gap-5 sm:grid-cols-2" aria-label="Student tools">
+          {TOOLS.map((tool) => (
+            <Link
+              key={tool.to}
+              to={tool.to}
+              data-testid={tool.testId}
+              className="group flex items-start gap-4 rounded-2xl border border-brand-line bg-brand-surface p-6 transition-[transform,border-color] duration-200 hover:-translate-y-1 hover:border-brand-primary/50"
+            >
+              <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${tool.tint}`}>
+                <tool.icon className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block font-heading text-base font-semibold text-fg">
+                  {tool.title}
+                </span>
+                <span className="mt-1 block text-sm text-muted">{tool.detail}</span>
+              </span>
+            </Link>
+          ))}
+        </section>
+
         <section className="mt-14" aria-labelledby="dash-resources">
           <div className="flex items-center justify-between gap-4">
             <h2 id="dash-resources" className="font-heading text-xl font-semibold text-fg">
@@ -144,7 +193,7 @@ export default function Dashboard() {
           <p className="mt-2 text-sm text-muted">
             These are planned for the next steps and are not active yet.
           </p>
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {UPCOMING.map((item) => (
               <li
                 key={item.label}

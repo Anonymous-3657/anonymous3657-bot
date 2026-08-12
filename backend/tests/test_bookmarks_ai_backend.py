@@ -82,6 +82,7 @@ def register_student(prefix="bmk"):
         "confirm_password": "StrongPass1",
         "university_id": UNIV_ID,
         "college_id": None,
+        "college_code": 301,
         "course_id": COURSE_ID,
         "semester_or_year": "1",
         "accept_terms": True,

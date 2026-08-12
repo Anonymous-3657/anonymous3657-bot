@@ -1,0 +1,792 @@
+[
+  {
+    "collegeCode": 101,
+    "type": "G",
+    "name": "GOVT. GHANSHYAM SINGH GUPT PG COLLEGE, BALOD, DIST.-BALOD"
+  },
+  {
+    "collegeCode": 102,
+    "type": "G",
+    "name": "GOVT. NEMI CHAND JAIN COLLEGE, DALLIRAJHARA, DIST.-BALOD"
+  },
+  {
+    "collegeCode": 103,
+    "type": "G",
+    "name": "SHAHID DURWASA NISHAD GOVT. COLLEGE, ARJUNDA, DIST.-BALOD"
+  },
+  {
+    "collegeCode": 104,
+    "type": "G",
+    "name": "GOVT. SHAHID KOUSHAL YADAV COLLEGE, GUNDARDEHI, DISTT.-BALOD (C.G.)"
+  },
+  {
+    "collegeCode": 105,
+    "type": "G",
+    "name": "GOVT. KANGLA MANJHI COLLEGE, DAUNDI, DISTT.-BALOD (C.G.)"
+  },
+  {
+    "collegeCode": 106,
+    "type": "G",
+    "name": "GOVT. EKLAVYA COLLEGE, DAUNDI-LOHARA, DISTT.-BALOD (C.G.)"
+  },
+  {
+    "collegeCode": 107,
+    "type": "G",
+    "name": "MADAN LAL SAHU GOVT. COLLEGE, ARMARIKALA, BALOD"
+  },
+  {
+    "collegeCode": 108,
+    "type": "G",
+    "name": "LATE DARAN BAI TARAM GOVT. COLLEGE, GURUR, BALOD"
+  },
+  {
+    "collegeCode": 109,
+    "type": "G",
+    "name": "GOVT. COLLEGE KHERTHA, DIST-BALOD, (C.G.)"
+  },
+  {
+    "collegeCode": 110,
+    "type": "G",
+    "name": "NAVIN GOVT. COLLEGE, MANGCHUA, DIST.-BALOD (C.G.)"
+  },
+  {
+    "collegeCode": 111,
+    "type": "G",
+    "name": "GOVT. NAVIN COLLEGE, BELODI, DIST.-BALOD (C.G.)"
+  },
+  {
+    "collegeCode": 112,
+    "type": "G",
+    "name": "GOVT. NAVEEN COLLEGE, MAAHUD B, DIST.- BALOD (C.G.)"
+  },
+  {
+    "collegeCode": 113,
+    "type": "G",
+    "name": "GOVT. NAVEEN KANYA MAHAVIDYALAYA, DIST.-BALOD"
+  },
+  {
+    "collegeCode": 114,
+    "type": "G",
+    "name": "GOVT. NAVEEN COLLEGE, BASIN, DIST. BALOD"
+  },
+  {
+    "collegeCode": 115,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, GHOTIYA, DIST. BALOD"
+  },
+  {
+    "collegeCode": 116,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, JEWARTALA, DAUNDI-LOHARA, DIST. BALOD"
+  },
+  {
+    "collegeCode": 121,
+    "type": "NG",
+    "name": "BHORAMDEV ARTS/COMMERCE COLLEGE, VILL.-PAIRI, GUNDARDEHI, DIST.-BALOD"
+  },
+  {
+    "collegeCode": 122,
+    "type": "NG",
+    "name": "MA BAHADUR KALARIN ARTS & SCIENCE COLLEGE, GURUR {BALOD}"
+  },
+  {
+    "collegeCode": 123,
+    "type": "NG",
+    "name": "MATA KARMA ARTS, COMM. & SCIENCE COLLEGE, GUNDERDEHI, DIST.-BALOD"
+  },
+  {
+    "collegeCode": 124,
+    "type": "NG",
+    "name": "SANT RAJA RAM SADANI NAGRIK MAHAVIDYALAYA, DONDILOHARA, DIST.-BALOD"
+  },
+  {
+    "collegeCode": 125,
+    "type": "NG",
+    "name": "VINDHYAVASINI ARTS & SCIENCE MAHAVIDYALAYA SANOD, BOHRA, BALOD"
+  },
+  {
+    "collegeCode": 201,
+    "type": "G",
+    "name": "GOVT. PT. JAWAHAR LAL NEHRU ARTS AND SCIENCE PG COLLEGE, BEMETARA, DIST.-BEMETARA"
+  },
+  {
+    "collegeCode": 202,
+    "type": "G",
+    "name": "GOVT. KODURAM DALIT COLLEGE, NAWAGARH, DIST.-BEMETARA"
+  },
+  {
+    "collegeCode": 203,
+    "type": "G",
+    "name": "LATE. THAKUR MAHARAJ SINGH GOVT. COLLEGE, THANKHAMHARIYA, DIST.-BEMETARA"
+  },
+  {
+    "collegeCode": 204,
+    "type": "G",
+    "name": "PT. DEVI PRASAD CHAUBEY GOVT. COLLEGE SAJA, DIST.-BEMETARA"
+  },
+  {
+    "collegeCode": 205,
+    "type": "G",
+    "name": "LAXMAN PRASAD BAIDH GOVT. GIRLS COLLEGE, BEMETARA, DIST.-BEMETARA (C.G.)"
+  },
+  {
+    "collegeCode": 206,
+    "type": "G",
+    "name": "GOVT. NAVIN COLLEGE, BERLA, DIST.-BEMETARA (C.G.)"
+  },
+  {
+    "collegeCode": 207,
+    "type": "G",
+    "name": "RANI AVANTI BAI LODHI GOVT. COLLEGE, PARPODHI, SAJA, DIST.- BEMETARA (C.G.)"
+  },
+  {
+    "collegeCode": 208,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, NANDGHAT, DIST.-BEMETARA"
+  },
+  {
+    "collegeCode": 209,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, DADHI, DIST.-BEMETARA"
+  },
+  {
+    "collegeCode": 210,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, DEVARBIJA, DIST.-BEMETARA"
+  },
+  {
+    "collegeCode": 211,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, BHIMBHOURI, BERLA, BEMETARA"
+  },
+  {
+    "collegeCode": 212,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, THELKA, SAJA, BEMETARA"
+  },
+  {
+    "collegeCode": 213,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, BORTARA, SAJA, BEMETARA"
+  },
+  {
+    "collegeCode": 221,
+    "type": "NG",
+    "name": "SAMADHAN COLLEGE, VILL-FARI, POST-BIJBHATA-BEMETARA (C.G.)"
+  },
+  {
+    "collegeCode": 301,
+    "type": "G-A",
+    "name": "GOVT. V.Y.T. PG AUTONOMOUS COLLEGE, DURG"
+  },
+  {
+    "collegeCode": 302,
+    "type": "G",
+    "name": "GOVT. DR. WAMAN WASUDEV PATANKAR GIRLS PG COLLEGE, NEAR KENDRIYA VIDHYALAYA, JAIL ROAD, DURG, DISTT. DURG"
+  },
+  {
+    "collegeCode": 303,
+    "type": "G",
+    "name": "DR. KHOOBCHAND BAGHEL GOVT. PG COLLEGE, BHILAI - 3, DIST-DURG"
+  },
+  {
+    "collegeCode": 304,
+    "type": "G",
+    "name": "INDIRA GANDHI GOVT. PG COLLEGE, VAISHALI NAGAR, BHILAI DISTT. DURG"
+  },
+  {
+    "collegeCode": 305,
+    "type": "G",
+    "name": "GOVT. CHANDULAL CHANDRAKAR ARTS & SCIENCE COLLEGE, PATAN, DIST.-DURG"
+  },
+  {
+    "collegeCode": 306,
+    "type": "G",
+    "name": "GOVT. DANVEER TULARAM PG COLLEGE, UTAI, DIST.-DURG"
+  },
+  {
+    "collegeCode": 307,
+    "type": "G",
+    "name": "CHANDULAL CHANDRAKAR GOVT. ART & COMMERCE COLLEGE, DHAMDHA, DIST.-DURG"
+  },
+  {
+    "collegeCode": 308,
+    "type": "G",
+    "name": "SHAHID DOMESHWAR SAHU GOVT. COLLEGE, JAMGAON-R, BHARAR DIST.-DURG (C.G.)"
+  },
+  {
+    "collegeCode": 309,
+    "type": "G",
+    "name": "GOVT. COLLEGE, BORI, DIST-DURG, (C.G.)"
+  },
+  {
+    "collegeCode": 310,
+    "type": "G",
+    "name": "MOHAN LAL JAIN (MOHAN BHAIYYA) GOVT. COLLEGE, KHURSIPAR, DIST.-DURG (C.G.)"
+  },
+  {
+    "collegeCode": 311,
+    "type": "G",
+    "name": "GOVT. NAGRIK KALYAN COLLEGE, NANDININAGAR, AHIWARA, DIST.-DURG"
+  },
+  {
+    "collegeCode": 312,
+    "type": "G",
+    "name": "SWAMI ATMANAND ENGLISH MEDIUM COLLEGE, DURG (GOVT. MODEL COLLEGE, DURG)"
+  },
+  {
+    "collegeCode": 313,
+    "type": "G",
+    "name": "DR. MANRAKHAN LAL SAHU GOVT. COLLEGE, JAMUL DIST.- DURG"
+  },
+  {
+    "collegeCode": 314,
+    "type": "G",
+    "name": "DAAU UTTAM SAO GOVT. COLLEGE, MACHANDUR, DIST.- DURG"
+  },
+  {
+    "collegeCode": 315,
+    "type": "G",
+    "name": "LATE BINDESHWARI BAGHEL GOVT. COLLEGE, KUMHARI, DIST.-DURG"
+  },
+  {
+    "collegeCode": 316,
+    "type": "G",
+    "name": "LATE PUKESHWAR SINGH BHARDIYA GOVT. COLLEGE, NIKUM, DIST.-DURG"
+  },
+  {
+    "collegeCode": 317,
+    "type": "G",
+    "name": "DANVEER BHAMASHAH DAU RAMCHANDRA SAHU GOVT. COLLEGE, RANITARAI, PATAN DIST.-DURG"
+  },
+  {
+    "collegeCode": 318,
+    "type": "G",
+    "name": "GOVT. NAVEEN COLLEGE, RISALI DIST.-DURG"
+  },
+  {
+    "collegeCode": 319,
+    "type": "G",
+    "name": "GOVT. NAVEEN COLLEGE, PENDRAWAN, DHAMDHA, DIST.-DURG"
+  },
+  {
+    "collegeCode": 320,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, NAGPURA, DURG"
+  },
+  {
+    "collegeCode": 331,
+    "type": "NG",
+    "name": "KALYAN POST GRADUATE COLLEGE, SECTOR-7, BHILAINAGAR, DISTT. DURG"
+  },
+  {
+    "collegeCode": 332,
+    "type": "NG",
+    "name": "SETH R.C.S. ARTS/COMMERCE COLLEGE, DURG, DISTT. DURG"
+  },
+  {
+    "collegeCode": 333,
+    "type": "NG",
+    "name": "BHILAI MAHILA MAHAVIDYALAYA, SECTOR-9, BHILAINAGAR, DISTT. DURG"
+  },
+  {
+    "collegeCode": 334,
+    "type": "NG",
+    "name": "ST. THOMAS COLLEGE, RUABANDHA, BHILAI, DIST.-DURG"
+  },
+  {
+    "collegeCode": 335,
+    "type": "NG",
+    "name": "SWAMI SHRI SWAROOPANANDA SARASWATI MAHAVIDYALAYA, AMDI NAGAR, HUDCO, BHILAI"
+  },
+  {
+    "collegeCode": 336,
+    "type": "NG",
+    "name": "BHILAI NAYAR SAMAJAM COLLEGE, SECTOR-8, BHILAI NAGAR, DIST.-DURG"
+  },
+  {
+    "collegeCode": 337,
+    "type": "NG",
+    "name": "SAI MAHAVIDYALAYA, STREET-69, SECTOR-6, BHILAI, DIST.-DURG (C.G.)"
+  },
+  {
+    "collegeCode": 338,
+    "type": "NG",
+    "name": "RUNGTA COLLEGE OF SCIENCE & TECHNOLOGY, GANJPARA, DURG"
+  },
+  {
+    "collegeCode": 339,
+    "type": "NG",
+    "name": "SHRI SHANKARACHARYA MAHAVIDYALAYA, VILL.-JUNWANI, BHILAI, DIST.-DURG"
+  },
+  {
+    "collegeCode": 340,
+    "type": "NG",
+    "name": "M.J. COLLEGE KOHKA-JUNWANI ROAD, BHILAI-DURG"
+  },
+  {
+    "collegeCode": 341,
+    "type": "NG",
+    "name": "G.D. RUNGTA COLLEGE OF SCIENCE & TECHNOLOGY, KOHKA-KURUD ROAD, BHILAI, DISTT. DURG"
+  },
+  {
+    "collegeCode": 342,
+    "type": "NG",
+    "name": "KALYAN LAW COLLEGE, SECTOR-7, BHILAI NAGAR, DISTT. DURG"
+  },
+  {
+    "collegeCode": 343,
+    "type": "NG",
+    "name": "SETH R.C.S. LAW COLLEGE, KASARIDIH, DURG, DISTT.-DURG"
+  },
+  {
+    "collegeCode": 344,
+    "type": "NG",
+    "name": "GHANSHYAM SINGH ARYA KANYA MAHAVIDYALAYA, ARYA NAGAR, DURG (C.G.)"
+  },
+  {
+    "collegeCode": 346,
+    "type": "NG",
+    "name": "INSTITUTE OF NATIONAL & FOREIGN LANGUAGES, DIST.-DURG"
+  },
+  {
+    "collegeCode": 347,
+    "type": "NG",
+    "name": "DR. RAJENDRA PRASAD ARTS/COMM. MAHAVIDYALAYA, RISALI-SECTOR, BHILAI,"
+  },
+  {
+    "collegeCode": 348,
+    "type": "NG",
+    "name": "BHILAI COLLEGE OF INFORMATION TECHNOLOGY, WARD NO 04, JAMUL, BHILAI, DIST.- DURG"
+  },
+  {
+    "collegeCode": 349,
+    "type": "NG",
+    "name": "BHILAI MAITRY MAHAVIDYALAYA, RISALI SECTOR, BHILAI"
+  },
+  {
+    "collegeCode": 350,
+    "type": "NG",
+    "name": "APPOLO COLLEGE, ANJORA, DURG"
+  },
+  {
+    "collegeCode": 351,
+    "type": "NG",
+    "name": "MANASA COLLEGE OF EDUCATION, KOHAKA ROAD, KURUD-BHILAI, DISTT. DURG"
+  },
+  {
+    "collegeCode": 352,
+    "type": "NG",
+    "name": "CHHATTISGARH COMMERCE & SCIENCE MAHAVIDYALA SECT.-6, BHILAI NAGAR, DIST.-DURG"
+  },
+  {
+    "collegeCode": 353,
+    "type": "NG",
+    "name": "CHHATTISGARH KALYAN SIKSHA MAHAVIDYALAYA, NANDINI ROAD, AHERI, DURG"
+  },
+  {
+    "collegeCode": 354,
+    "type": "NG",
+    "name": "SHIVA COLL., MAITRI VIHAR, RADHIKA NAGAR, SUPELA, BHILAI"
+  },
+  {
+    "collegeCode": 355,
+    "type": "NG",
+    "name": "UDAY COLLEGE, PLOT NO.-108/1, 108/2, NERA, ACC BOGDA BRIDGE, NANDINI ROAD, JAMUL, BHILAI, DISTT. - DURG - 490024 (C.G.)"
+  },
+  {
+    "collegeCode": 356,
+    "type": "NG",
+    "name": "ATTAR SINGH MAHAVIDYALAYA, ANDA, VILLAGE RISHAMA, DURG (C.G.)"
+  },
+  {
+    "collegeCode": 357,
+    "type": "NG",
+    "name": "DEV SANSKRATI COLLEGE OF EDUCATION AND TECHNOLOGY, DHAMDHA ROAD, VILL.-KHAPARI, DIST.-DURG"
+  },
+  {
+    "collegeCode": 358,
+    "type": "NG",
+    "name": "JAGATGURU SHANKARACHARYA COLLEGE OF EDUCATION, AMDI NAGAR HUDKO BHILAI DIST.- DURG"
+  },
+  {
+    "collegeCode": 359,
+    "type": "NG",
+    "name": "ARYAVART SHIKSHA MAHAVIDYALAYA, RUABANDHA, BHILAI, DIST-DURG, (C.G.)"
+  },
+  {
+    "collegeCode": 360,
+    "type": "NG",
+    "name": "KHALSA COLLEGE, JAIL ROAD, DURG, (C.G.)"
+  },
+  {
+    "collegeCode": 361,
+    "type": "NG",
+    "name": "ALIANCE COLLEGE, INSTITUTE OF COMMERCE AND MANAGEMENT, SECTOR-6, BHILAI, DIST-DURG, (C.G.)"
+  },
+  {
+    "collegeCode": 362,
+    "type": "NG",
+    "name": "AGRASEN MAHAVIDYALAYA, DHANORA, DURG (C.G.)"
+  },
+  {
+    "collegeCode": 363,
+    "type": "NG",
+    "name": "SETH BADRILAL KHANDELWAL, SHIKSHA MAHAVIDYALAYA, GOURAV PATH UTAI ROAD, DURG, (C.G.)"
+  },
+  {
+    "collegeCode": 364,
+    "type": "NG",
+    "name": "B.M. COLLEGE, DURG – KOLIHAPURI, PULGAON DURG (C.G.) RURAL"
+  },
+  {
+    "collegeCode": 365,
+    "type": "NG",
+    "name": "SHRI RAWATPURA SARKAR SANSTHAN, KUMHARI, DISTT. DURG (C.G.)"
+  },
+  {
+    "collegeCode": 366,
+    "type": "NG",
+    "name": "SHRI RAWATPURA SARKAR INSTITUTE OF PROFESSIONAL STUDIES, KUMHARI, DIST. DURG (C.G.)"
+  },
+  {
+    "collegeCode": 367,
+    "type": "NG",
+    "name": "KARMA MATA ARTS, COMMERCE & SCIENCE COLLEGE, JAMGAON {R} DISTT. DURG"
+  },
+  {
+    "collegeCode": 368,
+    "type": "NG",
+    "name": "KANTIDARSHAN EDUCATION & COMPUTER TRAINNING INSTITUTE, KOSA NAGAR, BHILAI (C.G.)"
+  },
+  {
+    "collegeCode": 369,
+    "type": "NG",
+    "name": "SANDIPANI ACADEMI, ACHHOTI, DIST.-DURG (C.G.)"
+  },
+  {
+    "collegeCode": 370,
+    "type": "NG",
+    "name": "SHAIL DEVI MAHAVIDYALAYA, PLOT. NO.-763, STREET NO.-25/35, VILL.-ANDA, DIST.-DURG, PIN- 491221"
+  },
+  {
+    "collegeCode": 371,
+    "type": "NG",
+    "name": "D.A.V. MODEL COLLEGE, DHAMDHA ROAD, DURG, DIST.-DURG (C.G.)"
+  },
+  {
+    "collegeCode": 373,
+    "type": "NG",
+    "name": "I.B.T. COLLEGE OF SCIENCE AND ARTS COLLEGE BERLA ROAD, GIRHOLA, AHIWARA, NANDINI NAGAR, DURG, DIST.-DURG (C.G.)"
+  },
+  {
+    "collegeCode": 374,
+    "type": "NG",
+    "name": "PRISM SCHOOL OF EDUCATION, MAIN ROAD, UTAI, DIST.-DURG (C.G.) 491107"
+  },
+  {
+    "collegeCode": 375,
+    "type": "NG",
+    "name": "SHRI SAI COLLEGE, PLOT NO. 286/1, 286/2, 291, DEORJHAR, NANDINI, DURG"
+  },
+  {
+    "collegeCode": 377,
+    "type": "NG",
+    "name": "CHHATTISGARH COLLEGE OF EDUCATION, DHANORA, DURG"
+  },
+  {
+    "collegeCode": 378,
+    "type": "NG",
+    "name": "VIDYAPITH COLLEGE, MALVIYA NAGAR, DURG"
+  },
+  {
+    "collegeCode": 379,
+    "type": "NG",
+    "name": "ATHARV COLLEGE, DHANORA, DURG"
+  },
+  {
+    "collegeCode": 381,
+    "type": "NG",
+    "name": "RUNGTA INSTITUTE OF SCIENCE AND MANAGEMENT BHILAI"
+  },
+  {
+    "collegeCode": 382,
+    "type": "NG",
+    "name": "LEELA DEVI SANKUL MAHAVIDYALAYA, GRAM-MOTIPUR TEHSIL-PATAN, DIST.-DURG"
+  },
+  {
+    "collegeCode": 383,
+    "type": "NG",
+    "name": "PRISM COLLEGE UTAI DURG"
+  },
+  {
+    "collegeCode": 384,
+    "type": "NG",
+    "name": "KRISHNA INSTITUTE OF SCIENCE AND COMMERCE, KHAMHARIYA, JUNWANI BHILAI"
+  },
+  {
+    "collegeCode": 385,
+    "type": "NG",
+    "name": "CHHATTISGARH COLLEGE DHANORA DURG"
+  },
+  {
+    "collegeCode": 386,
+    "type": "NG",
+    "name": "ST. THOMAS COLLEGE, KAILASH NAGAR, BHILAI, DIST.-DURG"
+  },
+  {
+    "collegeCode": 387,
+    "type": "NG",
+    "name": "RABINDRANATH TAIGOR COLLEGE, MURMUNDA, DHAMDHA, DURG"
+  },
+  {
+    "collegeCode": 401,
+    "type": "G",
+    "name": "ACHARYA PANTH SHRI GRINDH MUNINAM SAHEB GOVT. PG COLLEGE, KAWARDHA,-KABIRDHAM"
+  },
+  {
+    "collegeCode": 402,
+    "type": "G",
+    "name": "GOVT. GAJANAND MADHAW MAUKTIBODH COLLEGE, SAHASPUR-LOHARA, -KABIRDHAM"
+  },
+  {
+    "collegeCode": 403,
+    "type": "G",
+    "name": "GOVT. RAJMATA VIJIYA RAJE SINDHIYA GIRLS COLLEGE, KAWARDHA, KABIRDHAM"
+  },
+  {
+    "collegeCode": 404,
+    "type": "G",
+    "name": "GOVT. SWAMI VIVEKANAND COLLEGE BODLA, -KABIRDHAM,(C.G.)"
+  },
+  {
+    "collegeCode": 405,
+    "type": "G",
+    "name": "ATAL BIHARI VAJPAI GOVT. COLLEGE, PANDATARAI, -KABIRDHAM (C.G.)"
+  },
+  {
+    "collegeCode": 406,
+    "type": "G",
+    "name": "MAHANT SHRI RAMJANKI SHARAN DAS VAISHNAV GOVT. UG COLLEGE, PIPARIYA, DIST.-KABIRDHAM (C.G.)"
+  },
+  {
+    "collegeCode": 407,
+    "type": "G",
+    "name": "INDIRA GANDHI GOVT. COLLEGE, PANDARIYA, -KABIRDHAM (C.G.)"
+  },
+  {
+    "collegeCode": 408,
+    "type": "G",
+    "name": "GOVT. NAVEEN COLLEGE, KUI-KUKDAR, PANDARIYA, DIST.- KABIRDHAM (C.G.)"
+  },
+  {
+    "collegeCode": 409,
+    "type": "G",
+    "name": "PT. DINDAYAL UPADHYAY GOVT. COLLEGE, JHALMALA, BODLA, DIST.- KABIRDHAM (C.G.)"
+  },
+  {
+    "collegeCode": 410,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, KUNDA, PANDARIYA, DIST.-KABIRDHAM"
+  },
+  {
+    "collegeCode": 421,
+    "type": "NG",
+    "name": "RAMANUJ COLLEGE OF PROFESSIONAL STUDIES, PANDARIYA, -KABIRDHAM (C.G.)"
+  },
+  {
+    "collegeCode": 422,
+    "type": "NG",
+    "name": "SAMRAT ASHOK COLLEGE OF INFORMATION TECHNOLOGY, KAWARDHA (C.G.)"
+  },
+  {
+    "collegeCode": 423,
+    "type": "NG",
+    "name": "UNIQUE EDUCATIONAL SOCITY, MASZID COMPLEX, KAWARDHA,-KABIRDHAM (C.G.)"
+  },
+  {
+    "collegeCode": 424,
+    "type": "NG",
+    "name": "GRESIYAS COLLEGE LOHARA ROAD, KAWARDHA, KABIRDHAM"
+  },
+  {
+    "collegeCode": 501,
+    "type": "G-A",
+    "name": "GOVT. DIGVIJAY AUTONOMUS PG COLLEGE, RAJNANDGAON"
+  },
+  {
+    "collegeCode": 502,
+    "type": "G",
+    "name": "GOVT. DR. BABA SAHEB BHEEMRAO AMBEDKAR PG COLLEGE, DONGARGAON, DIST.-RAJNANDGAON"
+  },
+  {
+    "collegeCode": 503,
+    "type": "G",
+    "name": "GOVT. KAMLA DEVI RATHI MAHILA PG MAHAVIDYALAYA, RAJNANDGAON"
+  },
+  {
+    "collegeCode": 504,
+    "type": "G",
+    "name": "GOVT. KUNJ BIHARI CHOUBEY COLLEGE, LALBAHADUR NAGAR, DIST.-"
+  },
+  {
+    "collegeCode": 507,
+    "type": "G",
+    "name": "GOVT. NEHRU PG COLLEGE, DONGARGARH, DIST.-RAJNANDGAON"
+  },
+  {
+    "collegeCode": 508,
+    "type": "G",
+    "name": "GOVT. RANI AVANTIBAI LODHI COLLEGE, GHUMKA, DIST.-RAJNANDGAON"
+  },
+  {
+    "collegeCode": 509,
+    "type": "G",
+    "name": "GOVT. RANI SURYAMUKHI DEVI COLLEGE, CHHURIYA, DIST.-RAJNANDGAON"
+  },
+  {
+    "collegeCode": 510,
+    "type": "G",
+    "name": "GOVT. SHIVNATH SCIENCE COLLEGE, RAJNANDGAON, DIST.-RAJNANDGAON"
+  },
+  {
+    "collegeCode": 513,
+    "type": "G",
+    "name": "VIGANGANA RANI AVANTI BAI LODHI GOVT. ARTS & COMMERCE COLLEGE, RAMATOLA, DIST.-RAJNANDGAON"
+  },
+  {
+    "collegeCode": 517,
+    "type": "G",
+    "name": "SWAMI ATMANAND GOVT. ENGLISH MEDIUM MODEL COLLEGE, SOMANI,"
+  },
+  {
+    "collegeCode": 522,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, ARJUNI, DONGARGAON, DIST.-RAJNANDGAON"
+  },
+  {
+    "collegeCode": 531,
+    "type": "NG",
+    "name": "CENTRAL INDIA INSTITUTE, DEWADHA, DIST.- RAJNANDGAON"
+  },
+  {
+    "collegeCode": 532,
+    "type": "NG",
+    "name": "CIT COLLEGE, PARRINALA, GE ROAD, RAJNANDGAON"
+  },
+  {
+    "collegeCode": 533,
+    "type": "NG",
+    "name": "CONFLUENCE COLLEGE OF HIGHER EDUCATION, RAJNANDGAON"
+  },
+  {
+    "collegeCode": 534,
+    "type": "NG",
+    "name": "ELEGANT COLLEGE, MOTINATH MANDIR CAMPUS, BHARKAPARA, RAJNANDGAON"
+  },
+  {
+    "collegeCode": 535,
+    "type": "NG",
+    "name": "PT. K.L.S. LAW COLLEGE, RAJNANDGAON"
+  },
+  {
+    "collegeCode": 536,
+    "type": "NG",
+    "name": "ROYAL COLLEGE, DONGARGARH, DIST.-RAJNANDGAON (C.G.)"
+  },
+  {
+    "collegeCode": 537,
+    "type": "NG",
+    "name": "ROYAL COLLEGE, LALBAG, RAJNANDGAON (C.G.)"
+  },
+  {
+    "collegeCode": 538,
+    "type": "NG",
+    "name": "SHANSKAR CITY COLLEGE OF EDUCATION, DIST.- RAJNANDGAON"
+  },
+  {
+    "collegeCode": 539,
+    "type": "NG",
+    "name": "SHRI RAM SHIKSHA MAHAVIDYALAYA, DIGVIJAY STADIUM CAMPUS,"
+  },
+  {
+    "collegeCode": 540,
+    "type": "NG",
+    "name": "SOMANI MAHAVIDYALAYA, PLOT NO.-351/2, N.H.-6, SOMANI, RAJNANDGAON"
+  },
+  {
+    "collegeCode": 542,
+    "type": "NG",
+    "name": "ASHOKA DIGREE COLLEGE, TORANKATTA, SOMANI, RAJNANDGAON"
+  },
+  {
+    "collegeCode": 505,
+    "type": "G",
+    "name": "GOVT. LAL CHAKRADHAR SHAH COLLEGE, AMBAGARH CHOWKI, DIST.-MOHLA-MANPUR-AMBAGARHCHOWKI"
+  },
+  {
+    "collegeCode": 506,
+    "type": "G",
+    "name": "GOVT. LAL SHYAM SHAH COLLEGE, MANPUR, DIST.-MOHLA-MANPUR-AMBAGARHCHOWKI"
+  },
+  {
+    "collegeCode": 519,
+    "type": "G",
+    "name": "GOVT. NAVEEN COLLEGE AOUNDHI, MANPUR DIST.-MOHLA-MANPUR-AMBAGARHCHOWKI"
+  },
+  {
+    "collegeCode": 512,
+    "type": "G",
+    "name": "LATE LAL SHYAM SHAH GOVT. NAVEEN COLLEGE MOHLA DIST.-MOHLA-MANPUR-AMBAGARHCHOWKI"
+  },
+  {
+    "collegeCode": 523,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, CHILHATI, AMBAGARH CHOWKI, DIST.-MOHLA-MANPUR-AMBAGARHCHOWKI"
+  },
+  {
+    "collegeCode": 524,
+    "type": "G",
+    "name": "NAVEEN GOVT. GIRLS COLLEGE, MOHLA-MANPUR-AMBAGARHCHOWKI"
+  },
+  {
+    "collegeCode": 515,
+    "type": "G",
+    "name": "RANI RASHMI DEVI SINGH GOVT. COLLEGE, KHAIRAGARH, DIST.-KHAIRAGARH-CHHUHIKHADAN-GANDAI"
+  },
+  {
+    "collegeCode": 511,
+    "type": "G",
+    "name": "GOVT. NAVIN COLLEGE, SALHEWARA, DIST.-KHAIRAGARH-CHHUHIKHADAN-GANDAI"
+  },
+  {
+    "collegeCode": 516,
+    "type": "G",
+    "name": "VEERANGANA AVANTI BAI LODHI GOVT. COLLEGE, CHHUIKHADAN, DIST.-KHAIRAGARH-CHHUHIKHADAN-GANDAI"
+  },
+  {
+    "collegeCode": 514,
+    "type": "G",
+    "name": "LATE SHRI DEVI PRASAD JI CHOUBEY GOVT. COLLEGE, GANDAI, DIST.-KHAIRAGARH-CHHUHIKHADAN-GANDAI"
+  },
+  {
+    "collegeCode": 518,
+    "type": "G",
+    "name": "GOVT. NAVEEN COLLEGE THELKADIH, KHAIRAGARH, DIST.- KHAIRAGARH-CHHUHIKHADAN-GANDAI"
+  },
+  {
+    "collegeCode": 521,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, JALBANDHA, DIST.- KHAIRAGARH-CHHUHIKHADAN-GANDAI"
+  },
+  {
+    "collegeCode": 525,
+    "type": "G",
+    "name": "NAVEEN GOVT. GIRLS COLLEGE, KHAIRAGARH-CHHUHIKHADAN-GANDAI"
+  },
+  {
+    "collegeCode": 520,
+    "type": "G",
+    "name": "NAVEEN GOVT. COLLEGE, BAZAR ATARIYA, DIST.- KHAIRAGARH-CHHUHIKHADAN-GANDAI"
+  }
+]

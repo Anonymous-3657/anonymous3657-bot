@@ -12,6 +12,7 @@ import {
   inputClass,
 } from "@/components/auth/FormControls";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
+import { CollegeSelect } from "@/components/common/CollegeSelect";
 import { errorMessage, useAuth } from "@/context/AuthContext";
 import { api, http } from "@/services/api";
 import { fmtDate } from "@/utils/format";
@@ -33,7 +34,7 @@ export default function Profile() {
     bio: user.bio || "",
     phone: user.phone || "",
     university_id: user.university_id || "",
-    college_id: user.college_id || "",
+    college_code: user.college_code || "",
     course_id: user.course_id || "",
     semester_or_year: user.semester_or_year || "",
   });
@@ -67,7 +68,10 @@ export default function Profile() {
     e.preventDefault();
     setSavingProfile(true);
     try {
-      await updateProfile(profile);
+      await updateProfile({
+        ...profile,
+        college_code: profile.college_code ? Number(profile.college_code) : undefined,
+      });
       toast.success("Profile updated");
     } catch (err) {
       toast.error(errorMessage(err));
@@ -160,14 +164,6 @@ export default function Profile() {
                 options={catalog.universities.map((u) => ({ value: u.id, label: u.name }))}
               />
               <SelectInput
-                id="profile-college"
-                label="College"
-                value={profile.college_id}
-                onChange={set("college_id")}
-                placeholder="Select college"
-                options={catalog.colleges.map((c) => ({ value: c.id, label: c.name }))}
-              />
-              <SelectInput
                 id="profile-course"
                 label="Course"
                 value={profile.course_id}
@@ -182,6 +178,17 @@ export default function Profile() {
                 onChange={set("semester_or_year")}
               />
             </div>
+            <CollegeSelect
+              id="profile-college"
+              required
+              value={profile.college_code}
+              onChange={(code) => setProfile((p) => ({ ...p, college_code: code }))}
+              hint={
+                user.college_name
+                  ? `Current: ${user.college_name}`
+                  : "Please select your college to complete your profile."
+              }
+            />
             <SubmitButton busy={savingProfile} testId="profile-save">
               Save changes
             </SubmitButton>

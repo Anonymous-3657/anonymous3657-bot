@@ -75,6 +75,23 @@ export const ADMIN_ENTITIES = {
       { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
     ],
   },
+  exam_schedules: {
+    label: "Exam Schedules",
+    icon: "CalendarClock",
+    titleField: "semester",
+    columns: ["semester", "exam_type", "session", "start_date", "end_date", "status"],
+    fields: [
+      { name: "course_id", label: "Course", type: "ref", ref: "courses", required: true },
+      { name: "semester", label: "Semester / Year", required: true, hint: "Must match the student's semester exactly, e.g. Semester 3" },
+      { name: "exam_type", label: "Exam type", type: "select", options: ["Main", "Supplementary", "Practical", "Internal"] },
+      { name: "session", label: "Session", hint: "e.g. 2025-26" },
+      { name: "start_date", label: "Start date", required: true, hint: "YYYY-MM-DD" },
+      { name: "end_date", label: "End date", hint: "YYYY-MM-DD" },
+      { name: "subject_wise_dates", label: "Subject-wise dates", type: "textarea" },
+      { name: "notes", label: "Notes", type: "textarea" },
+      { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
+    ],
+  },
   resources: {
     label: "Resources",
     icon: "FileText",
@@ -100,6 +117,7 @@ export const ADMIN_ENTITIES = {
 
 export const ADMIN_NAV = [
   { to: "/admin", label: "Overview", icon: "LayoutDashboard" },
+  { to: "/admin/pdfs", label: "PDF Approval", icon: "FileCheck2" },
   ...Object.entries(ADMIN_ENTITIES).map(([key, cfg]) => ({
     to: `/admin/${key}`,
     label: cfg.label,

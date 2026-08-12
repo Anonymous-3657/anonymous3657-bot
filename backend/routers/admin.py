@@ -19,8 +19,8 @@ from routers.catalog import oid
 # Every admin endpoint sits behind the staff gate as well as its own permission.
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_staff)])
 
-BOOL_FIELDS = {"is_premium", "is_verified", "is_demo"}
-INT_FIELDS = {"year", "file_size", "views", "downloads"}
+BOOL_FIELDS = {"is_premium", "is_verified", "is_demo", "is_active"}
+INT_FIELDS = {"year", "file_size", "views", "downloads", "college_code"}
 
 SCHEMAS = {
     "states": {
@@ -39,7 +39,8 @@ SCHEMAS = {
     "colleges": {
         "collection": "colleges",
         "fields": ["university_id", "name", "slug", "logo_url", "address", "city",
-                   "description", "status"],
+                   "description", "college_code", "college_name", "college_type",
+                   "district", "is_active", "status"],
         "required": ["name", "university_id"],
         "slug_from": "name",
     },
@@ -60,6 +61,12 @@ SCHEMAS = {
         "fields": ["name", "slug", "description", "icon", "status"],
         "required": ["name"],
         "slug_from": "name",
+    },
+    "exam_schedules": {
+        "collection": "exam_schedules",
+        "fields": ["course_id", "semester", "exam_type", "session", "start_date",
+                   "end_date", "subject_wise_dates", "notes", "status"],
+        "required": ["course_id", "semester", "start_date"],
     },
     "resources": {
         "collection": "resources",
@@ -128,6 +135,9 @@ def clean_payload(schema: dict, body: dict, partial: bool) -> dict:
 async def list_entity(
     entity: str,
     q: Optional[str] = None,
+    district: Optional[str] = None,
+    college_type: Optional[str] = None,
+    is_active: Optional[bool] = None,
     skip: int = 0,
     limit: int = Query(50, le=200),
     user: dict = Depends(get_current_user),
@@ -137,8 +147,22 @@ async def list_entity(
     filters = {"is_deleted": {"$ne": True}}
     if q:
         key = "title" if entity == "resources" else "name"
-        filters[key] = {"$regex": re.escape(q.strip()[:80]), "$options": "i"}
-    cursor = db[schema["collection"]].find(filters).sort("created_at", -1).skip(skip).limit(limit)
+        term = q.strip()[:80]
+        if entity == "colleges" and term.isdigit():
+            filters["college_code"] = int(term)
+        else:
+            filters[key] = {"$regex": re.escape(term), "$options": "i"}
+    if entity == "colleges":
+        if district:
+            filters["district"] = district
+        if college_type:
+            filters["college_type"] = college_type
+        if is_active is not None:
+            filters["is_active"] = is_active
+    sort_field = "college_name" if entity == "colleges" else "created_at"
+    direction = 1 if entity == "colleges" else -1
+    cursor = (db[schema["collection"]].find(filters)
+              .sort(sort_field, direction).skip(skip).limit(limit))
     items = []
     for doc in await cursor.to_list(limit):
         doc["id"] = str(doc.pop("_id"))
@@ -225,6 +249,10 @@ async def overview(user: dict = Depends(require_staff)):
                  "categories", "resources"):
         counts[name] = await db[name].count_documents(active)
     counts["users"] = await db.users.count_documents({"is_deleted": {"$ne": True}})
+    counts["pdfs_pending"] = await db.pdf_documents.count_documents(
+        {"status": "pending", "is_deleted": {"$ne": True}})
+    counts["pdfs_approved"] = await db.pdf_documents.count_documents(
+        {"status": "approved", "is_deleted": {"$ne": True}})
     return {"counts": counts, "role": user.get("role")}
 
 

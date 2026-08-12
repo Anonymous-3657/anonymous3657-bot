@@ -11,6 +11,7 @@ import {
   TextInput,
 } from "@/components/auth/FormControls";
 import { PasswordStrength, passwordScore } from "@/components/auth/PasswordStrength";
+import { CollegeSelect } from "@/components/common/CollegeSelect";
 import { errorMessage, useAuth } from "@/context/AuthContext";
 import { api } from "@/services/api";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
@@ -24,7 +25,7 @@ const BLANK = {
   password: "",
   confirm_password: "",
   university_id: "",
-  college_id: "",
+  college_code: "",
   course_id: "",
   semester_or_year: "",
   accept_terms: false,
@@ -94,6 +95,7 @@ export default function Register() {
     if (form.password !== form.confirm_password)
       errors.confirm_password = "Passwords do not match";
     if (!form.university_id) errors.university_id = "Select your university";
+    if (!form.college_code) errors.college_code = "Select your college";
     if (!form.course_id) errors.course_id = "Select your course";
     if (!form.semester_or_year) errors.semester_or_year = "Select your semester or year";
     if (!form.accept_terms) errors.accept_terms = "Please accept the Terms & Conditions";
@@ -113,7 +115,11 @@ export default function Register() {
 
     setBusy(true);
     try {
-      await register({ ...form, username: form.username.trim().toLowerCase() });
+      await register({
+        ...form,
+        username: form.username.trim().toLowerCase(),
+        college_code: Number(form.college_code),
+      });
       navigate("/verify-email", { replace: true });
     } catch (err) {
       setError(errorMessage(err));
@@ -226,14 +232,6 @@ export default function Register() {
             options={catalog.universities.map((u) => ({ value: u.id, label: u.name }))}
           />
           <SelectInput
-            id="register-college"
-            label="College"
-            value={form.college_id}
-            onChange={set("college_id")}
-            placeholder={form.university_id ? "Select college (optional)" : "Select university first"}
-            options={catalog.colleges.map((c) => ({ value: c.id, label: c.name }))}
-          />
-          <SelectInput
             id="register-course"
             label="Course"
             required
@@ -254,6 +252,17 @@ export default function Register() {
             options={semesters.map((s) => ({ value: s, label: s }))}
           />
         </div>
+
+        <CollegeSelect
+          id="register-college"
+          required
+          value={form.college_code}
+          error={fieldErrors.college_code}
+          onChange={(code) => {
+            setForm((f) => ({ ...f, college_code: code }));
+            setFieldErrors((fe) => ({ ...fe, college_code: undefined }));
+          }}
+        />
 
         <div className="space-y-1 border-t border-brand-line pt-4">
           <Checkbox

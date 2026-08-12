@@ -21,6 +21,7 @@ export const api = {
   universities: (params) => get("/universities", params),
   university: (slug) => get(`/universities/${slug}`),
   colleges: (params) => get("/colleges", params),
+  collegeMaster: (params) => get("/colleges/master", params),
   courses: (params) => get("/courses", params),
   course: (slug) => get(`/courses/${slug}`),
   subjects: (params) => get("/subjects", params),
@@ -31,9 +32,28 @@ export const api = {
 
 export const studentApi = {
   bookmarks: (params) => get("/me/bookmarks", params),
+  bookmarkPdfs: () => get("/me/bookmarks/pdfs"),
   bookmarkIds: () => get("/me/bookmarks/ids"),
   addBookmark: (resource_id) => http.post("/me/bookmarks", { resource_id }).then((r) => r.data),
+  addPdfBookmark: (pdf_id) => http.post("/me/bookmarks", { pdf_id }).then((r) => r.data),
   removeBookmark: (resource_id) => http.delete(`/me/bookmarks/${resource_id}`).then((r) => r.data),
+  examCountdown: () => get("/me/exam-countdown"),
+};
+
+export const pdfApi = {
+  mine: (params) => get("/pdfs/mine", params),
+  approved: (params) => get("/pdfs/approved", params),
+  detail: (id) => get(`/pdfs/${id}`),
+  fileUrl: (id) => `${API}/pdfs/${id}/file`,
+  remove: (id) => http.delete(`/pdfs/${id}`).then((r) => r.data),
+  upload: (formData, onProgress) =>
+    http
+      .post("/pdfs", formData, {
+        timeout: 180000,
+        onUploadProgress: (e) =>
+          onProgress?.(e.total ? Math.round((e.loaded * 100) / e.total) : 0),
+      })
+      .then((r) => r.data),
 };
 
 export const aiApi = {
@@ -42,6 +62,7 @@ export const aiApi = {
   ask: (body) => http.post("/ai/ask", body, { timeout: 120000 }).then((r) => r.data),
   summarise: (body) => http.post("/ai/summarise", body, { timeout: 120000 }).then((r) => r.data),
   practice: (body) => http.post("/ai/practice", body, { timeout: 120000 }).then((r) => r.data),
+  pdfSummary: (body) => http.post("/ai/pdf-summary", body, { timeout: 180000 }).then((r) => r.data),
   deleteSession: (sessionId) => http.delete(`/ai/sessions/${sessionId}`).then((r) => r.data),
 };
 
@@ -56,4 +77,8 @@ export const adminApi = {
   createUser: (body) => http.post("/admin/users", body).then((r) => r.data),
   updateUser: (id, body) => http.put(`/admin/users/${id}`, body).then((r) => r.data),
   removeUser: (id) => http.delete(`/admin/users/${id}`).then((r) => r.data),
+  pdfs: (params) => get("/admin/pdfs", params),
+  approvePdf: (id) => http.post(`/admin/pdfs/${id}/approve`).then((r) => r.data),
+  rejectPdf: (id, reason) => http.post(`/admin/pdfs/${id}/reject`, { reason }).then((r) => r.data),
+  deletePdf: (id) => http.delete(`/admin/pdfs/${id}`).then((r) => r.data),
 };

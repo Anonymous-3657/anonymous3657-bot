@@ -68,6 +68,12 @@ class College(Timestamped):
     university_id: Optional[PyObjectId] = None
     name: str
     slug: str
+    college_code: Optional[int] = None
+    college_name: Optional[str] = None
+    college_type: Optional[str] = None  # G / NG / G-A
+    college_type_label: Optional[str] = None
+    district: Optional[str] = None
+    is_active: bool = True
     logo_url: Optional[str] = None
     address: Optional[str] = None
     city: Optional[str] = None

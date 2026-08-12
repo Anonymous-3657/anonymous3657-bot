@@ -27,6 +27,8 @@ async def ensure_indexes():
 
     await db.colleges.create_index("slug", unique=True)
     await db.colleges.create_index([("university_id", 1), ("status", 1)])
+    await db.colleges.create_index("college_code", unique=True, sparse=True)
+    await db.colleges.create_index([("district", 1), ("college_name", 1)])
 
     await db.courses.create_index("slug", unique=True)
     await db.courses.create_index([("university_id", 1), ("status", 1)])
@@ -62,3 +64,9 @@ async def ensure_indexes():
     await db.ai_sessions.create_index("session_id", unique=True)
     await db.ai_sessions.create_index([("user_id", 1), ("updated_at", -1)])
     await db.ai_messages.create_index([("session_id", 1), ("created_at", 1)])
+    await db.pdf_documents.create_index([("uploaded_by", 1), ("uploaded_at", -1)])
+    await db.pdf_documents.create_index([("status", 1), ("approved_at", -1)])
+    await db.pdf_documents.create_index([("uploaded_by", 1), ("checksum", 1)])
+    await db.pdf_documents.create_index("college_code")
+    await db.exam_schedules.create_index([("course_id", 1), ("semester", 1), ("session", 1)])
+    await db.exam_schedules.create_index("start_date")

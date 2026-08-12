@@ -11,7 +11,9 @@ from starlette.middleware.cors import CORSMiddleware  # noqa: E402
 
 from auth import seed_admin  # noqa: E402
 from database import close_client, ensure_indexes  # noqa: E402
-from routers import admin, ai, auth_routes, catalog, meta, resources, student  # noqa: E402
+from routers import (admin, ai, auth_routes, catalog, exams, meta, pdfs,  # noqa: E402
+                     resources, student)
+from storage import init_storage  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,6 +44,9 @@ api_router.include_router(resources.router)
 api_router.include_router(auth_routes.router)
 api_router.include_router(student.router)
 api_router.include_router(ai.router)
+api_router.include_router(exams.router)
+api_router.include_router(pdfs.router)
+api_router.include_router(pdfs.admin_router)
 api_router.include_router(admin.router)
 app.include_router(api_router)
 
@@ -90,6 +95,13 @@ async def on_startup():
         await ensure_indexes()
         result = await seed_admin()
         logger.info("Indexes ensured; admin seed: %s", result)
+        from seed_colleges import run as seed_colleges
+        logger.info("College master seed: %s", await seed_colleges())
+    except Exception:
+        logger.exception("Startup bootstrap failed; API will still serve requests")
+    try:
+        init_storage()
+        logger.info("Object storage initialised")
     except Exception:
         logger.exception("Startup bootstrap failed; API will still serve requests")
 

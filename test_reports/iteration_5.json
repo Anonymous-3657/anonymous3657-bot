@@ -1,0 +1,48 @@
+{
+  "summary": "Step 2 auth backend + smoke frontend testing. Built /app/backend/tests/test_auth_backend.py (38 tests) covering registration happy-path + validation, role-escalation guard, username-availability, login/session, email-verify link single-use, email OTP flow (with hash-override + attempts cap), forgot/reset (generic response + token reuse + old vs new password), change password/email, profile mass-assignment guard, account status blocking (suspended/banned/deactivated -> 403 on /me and /login), protected route 401s, audit-event redaction, logout, forgot-password + login rate limits. Result: 37/38 PASS. Only failure = /api/admin/overview returns 200 for a signed-in student, which is a genuine authorization bug: it currently requires 'catalog:read' and students have that permission. Regression: test_step1_backend.py + test_admin_backend.py = 46/46 (xdist), test_lockout_regression.py = 6/6 (serial). Frontend smoke on desktop + 390x780 mobile: login/register/forgot/reset test-ids all present, password strength label moves Weak -> Very Strong, show/hide toggle flips input type password<->text, cascading dropdowns render (university + course + semester), navbar shows Sign In / Create Account when signed out, mobile has email inputmode=email, phone inputmode=numeric, no horizontal scroll at 390px. Note: register `password-strength` / `password-strength-label` testids only render after the user starts typing (count=0 before, present after fill), which is fine but worth documenting for future test scripts.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "GET /api/admin/overview",
+        "issue": "Signed-in STUDENT gets 200 instead of 403. The endpoint uses require_permission('catalog:read'), but ROLE_PERMISSIONS['student'] already contains 'catalog:read' (students need it to browse the public catalog). Any signed-in student can therefore read the admin dashboard counts. Fix by gating with a staff-only permission (e.g. 'user:read' or a new 'admin:read') or by checking role in ('admin','super_admin','moderator').",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_auth_backend.py",
+    "/app/test_reports/pytest/auth_iter5.xml",
+    "/app/test_reports/pytest/regression_iter5_main.xml",
+    "/app/test_reports/pytest/regression_iter5_lockout.xml"
+  ],
+  "action_items": [
+    "Restrict GET /api/admin/overview (and audit any other admin endpoint using catalog:read) to staff roles only — the current gate lets every student hit the admin overview."
+  ],
+  "critical_code_review_comments": [
+    "Permission model leak: several admin router handlers (/admin/overview) require catalog:read which is also granted to student and contributor. Introduce a dedicated staff permission (e.g. 'admin:dashboard') or wrap the whole /api/admin router with a role>=moderator dependency instead of reusing catalog:read.",
+    "auth.set_auth_cookies() hard-codes samesite='none' + secure=True. Correct for the preview domain, but will silently drop cookies on plain-http local dev. Gate via APP_ENV.",
+    "CORS still `allow_origin_regex='.*'` with allow_credentials=True — replace with an explicit allowlist before prod (still deferred from earlier iterations).",
+    "auth_routes.register calls issue_session() immediately after insert — a client that fails validation on downstream fields (e.g. university/course) never gets logged in, but a successful register auto-signs the user in even before email verification. Intended per requirements, but note that /auth/change-email also transitions the user back to pending_verification without invalidating the existing access_token: the outstanding JWT is still valid until it expires. Consider rotating cookies or bumping a `token_version` on sensitive changes (change-email, password reset from within session, status change).",
+    "OTP `verify_otp` deletes the doc on success but returns success without checking that the user still exists / status is not blocked — get_current_user protects this, so functionally fine, just worth an explicit assertion in-line.",
+    "seed_admin still silently rotates the admin password from env on restart with no log line — deferred from iter4."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_auth_backend.py (new)"
+  ],
+  "success_rate": {
+    "backend": "97% (37/38 new auth tests) + 100% (52/52 regression = 46 step1+admin xdist, 6 lockout serial)",
+    "frontend": "100% of scoped auth smoke checks (desktop + 390x780 mobile)"
+  },
+  "test_credentials": "Admin: admin@cgstudentportal.in / CgAdmin@2026. Student accounts created dynamically via /api/auth/register with password 'StrongPass1'.",
+  "seed_data_creation": "Test suite created ~30 throwaway users, auth_tokens, otp_codes, rate_limits and audit_events during the run. Session-scoped autouse teardown removes them; a final manual sweep confirmed only admin@cgstudentportal.in remains in users and 17 admin-owned audit events. auth_tokens, otp_codes, rate_limits and login_attempts are empty.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Auth suite = /app/backend/tests/test_auth_backend.py. It sets `X-Forwarded-For` to a random 10.x.x.x on every request to sidestep the per-IP /register rate limit (10/hr). Session-scoped cleanup wipes users (except admin), auth_tokens, otp_codes, rate_limits, login_attempts, and tracked-email audit events. Motor clients are re-created inside each async helper because Motor caches io_loop on first access and asyncio.run() spawns a fresh loop per call. The ONLY functional failure is TestProtectedRoutes.test_student_admin_forbidden which reflects a real permission bug (see backend_issues.critical). After main agent fixes /api/admin/overview gating, re-run: `pytest backend/tests/test_auth_backend.py -o addopts='' -v` should return 38/38.",
+  "rca of the issue": "GET /api/admin/overview -> depends on require_permission('catalog:read'). ROLE_PERMISSIONS in /app/backend/auth.py assigns 'catalog:read' to student (needed for public catalog reads elsewhere). Result: any signed-in student passes the gate. Reproduction: register a student via POST /api/auth/register, then GET /api/admin/overview with the returned access_token cookie -> 200 with real counts. Mitigation: either (a) change the dependency in /app/backend/routers/admin.py line ~220 to require_permission('user:read') or a new 'admin:read', or (b) wrap the whole /api/admin router with an assert_role_at_least('moderator') dependency and remove the per-endpoint catalog:read gate."
+}

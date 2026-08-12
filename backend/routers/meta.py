@@ -10,8 +10,12 @@ router = APIRouter(tags=["meta"])
 
 @router.get("/health")
 async def health():
-    await db.command("ping")
-    return {"status": "ok"}
+    """Liveness for the API surface. Reports DB reachability without failing the probe."""
+    try:
+        await db.command("ping")
+        return {"status": "ok", "database": "connected"}
+    except Exception:
+        return {"status": "ok", "database": "unreachable"}
 
 
 @router.get("/stats")

@@ -89,8 +89,10 @@ export const UnauthorizedState = () => (
   <StateView
     icon="Lock"
     tone="warning"
-    title="Sign in required"
-    description="Accounts arrive in Step 2 of the CG Student Portal roadmap."
+    title="You do not have access to this area"
+    description="Your account does not have permission to open the admin panel."
+    actionLabel="Go to my dashboard"
+    actionTo="/dashboard"
     testId="unauthorized-state"
   />
 );

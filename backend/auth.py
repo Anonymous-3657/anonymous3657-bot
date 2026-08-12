@@ -18,6 +18,12 @@ MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_MINUTES = 15
 
 ROLE_PERMISSIONS = {
+    "super_admin": {
+        "catalog:read", "catalog:write", "catalog:delete",
+        "resource:read", "resource:write", "resource:delete", "resource:approve",
+        "user:read", "user:write", "user:delete",
+        "finance:read", "finance:write", "support:read", "system:manage",
+    },
     "admin": {
         "catalog:read", "catalog:write", "catalog:delete",
         "resource:read", "resource:write", "resource:delete", "resource:approve",
@@ -26,15 +32,55 @@ ROLE_PERMISSIONS = {
     "moderator": {
         "catalog:read", "resource:read", "resource:write", "resource:approve",
     },
+    "content_reviewer": {"catalog:read", "resource:read", "resource:approve"},
+    "university_manager": {"catalog:read", "catalog:write", "resource:read"},
+    "college_manager": {"catalog:read", "resource:read"},
+    "finance_manager": {"catalog:read", "finance:read", "finance:write"},
+    "support": {"catalog:read", "resource:read", "user:read", "support:read"},
     "contributor": {"catalog:read", "resource:read", "resource:write"},
     "student": {"catalog:read", "resource:read"},
 }
 
-ROLE_RANK = {"student": 1, "contributor": 2, "moderator": 3, "admin": 4}
+ROLE_RANK = {
+    "student": 1,
+    "contributor": 2,
+    "support": 3,
+    "college_manager": 3,
+    "content_reviewer": 4,
+    "university_manager": 4,
+    "finance_manager": 4,
+    "moderator": 5,
+    "admin": 8,
+    "super_admin": 9,
+}
+
+DEFAULT_ROLE = "student"
+# Roles allowed into the staff area at all. Individual endpoints still check
+# their own permission, so this is an outer gate, not a replacement.
+STAFF_ROLES = {
+    "moderator", "content_reviewer", "support", "finance_manager",
+    "university_manager", "college_manager", "admin", "super_admin",
+}
+
+STATUS_ACTIVE = "active"
+STATUS_PENDING = "pending_verification"
+# Only these statuses may hold a session at all.
+SESSION_STATUSES = {STATUS_ACTIVE, STATUS_PENDING}
+BLOCKED_STATUS_MESSAGE = {
+    "suspended": "Your account is suspended. Contact support for help.",
+    "banned": "This account has been banned.",
+    "deactivated": "This account is deactivated.",
+}
 
 
 def _secret() -> str:
-    return os.environ["JWT_SECRET"]
+    secret = os.environ.get("JWT_SECRET")
+    if not secret:
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication is not configured on this server (JWT_SECRET missing).",
+        )
+    return secret
 
 
 def hash_password(password: str) -> str:
@@ -67,10 +113,16 @@ def create_refresh_token(user_id: str) -> str:
 
 
 def set_auth_cookies(response: Response, access: str, refresh: str):
-    response.set_cookie("access_token", access, httponly=True, secure=True,
-                        samesite="none", max_age=ACCESS_TTL_MIN * 60, path="/")
-    response.set_cookie("refresh_token", refresh, httponly=True, secure=True,
-                        samesite="none", max_age=REFRESH_TTL_DAYS * 86400, path="/")
+    # Plain-http local development cannot use Secure/None cookies.
+    cross_site = os.environ.get("APP_ENV", "development") != "local"
+    opts = {
+        "httponly": True,
+        "secure": cross_site,
+        "samesite": "none" if cross_site else "lax",
+        "path": "/",
+    }
+    response.set_cookie("access_token", access, max_age=ACCESS_TTL_MIN * 60, **opts)
+    response.set_cookie("refresh_token", refresh, max_age=REFRESH_TTL_DAYS * 86400, **opts)
 
 
 def clear_auth_cookies(response: Response):
@@ -92,11 +144,32 @@ def public_user(doc: dict) -> dict:
         "name": doc.get("name"),
         "username": doc.get("username"),
         "email": doc.get("email"),
-        "role": doc.get("role", "student"),
-        "status": doc.get("status", "active"),
+        "phone": doc.get("phone"),
+        "avatar_url": doc.get("avatar_url"),
+        "bio": doc.get("bio"),
+        "role": doc.get("role", DEFAULT_ROLE),
+        "status": doc.get("status", STATUS_ACTIVE),
+        "email_verified": bool(doc.get("email_verified")),
+        "phone_verified": bool(doc.get("phone_verified")),
+        "university_id": doc.get("university_id"),
+        "college_id": doc.get("college_id"),
+        "course_id": doc.get("course_id"),
+        "semester_or_year": doc.get("semester_or_year"),
+        "permissions": sorted(ROLE_PERMISSIONS.get(doc.get("role", DEFAULT_ROLE), set())),
         "created_at": doc.get("created_at"),
+        "updated_at": doc.get("updated_at"),
         "last_login_at": doc.get("last_login_at"),
     }
+
+
+def assert_can_hold_session(user: dict):
+    """Suspended, banned and deactivated accounts can never hold a session."""
+    status = user.get("status", STATUS_ACTIVE)
+    if user.get("is_deleted"):
+        raise HTTPException(status_code=401, detail="Account unavailable")
+    if status not in SESSION_STATUSES:
+        raise HTTPException(status_code=403, detail=BLOCKED_STATUS_MESSAGE.get(
+            status, "Your account cannot be accessed right now."))
 
 
 async def get_current_user(request: Request) -> dict:
@@ -116,8 +189,26 @@ async def get_current_user(request: Request) -> dict:
         user = await db.users.find_one({"_id": ObjectId(payload["sub"])})
     except (InvalidId, TypeError):
         raise HTTPException(status_code=401, detail="Invalid token")
-    if not user or user.get("status") != "active" or user.get("is_deleted"):
+    if not user:
         raise HTTPException(status_code=401, detail="Account unavailable")
+    assert_can_hold_session(user)
+    return user
+
+
+async def require_verified_user(user: dict = Depends(get_current_user)) -> dict:
+    """Gate for sensitive authenticated features."""
+    if not user.get("email_verified"):
+        raise HTTPException(
+            status_code=403,
+            detail="Please verify your email address to use this feature.",
+        )
+    return user
+
+
+async def require_staff(user: dict = Depends(get_current_user)) -> dict:
+    """Outer gate for /api/admin. Students and contributors never pass."""
+    if user.get("role") not in STAFF_ROLES:
+        raise HTTPException(status_code=403, detail="Staff access only")
     return user
 
 
@@ -125,7 +216,7 @@ def require_permission(permission: str):
     """Deny-by-default gate. Role is resolved from the live user document."""
 
     async def dependency(user: dict = Depends(get_current_user)) -> dict:
-        perms = ROLE_PERMISSIONS.get(user.get("role", "student"), set())
+        perms = ROLE_PERMISSIONS.get(user.get("role", DEFAULT_ROLE), set())
         if permission not in perms:
             raise HTTPException(status_code=403, detail="Insufficient permissions")
         return user

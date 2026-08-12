@@ -20,6 +20,7 @@ export const api = {
   states: () => get("/states"),
   universities: (params) => get("/universities", params),
   university: (slug) => get(`/universities/${slug}`),
+  colleges: (params) => get("/colleges", params),
   courses: (params) => get("/courses", params),
   course: (slug) => get(`/courses/${slug}`),
   subjects: (params) => get("/subjects", params),

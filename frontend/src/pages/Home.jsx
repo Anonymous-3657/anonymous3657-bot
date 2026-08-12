@@ -127,7 +127,7 @@ export default function Home() {
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link
-                  to="/legal/about"
+                  to="/register"
                   data-testid={TESTIDS.heroSecondaryCta}
                   className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-brand-line bg-brand-surface px-6 font-heading text-sm font-medium text-fg transition-colors duration-200 hover:bg-brand-elevated"
                 >
@@ -135,7 +135,7 @@ export default function Home() {
                 </Link>
               </div>
               <p className="mt-3 text-xs text-muted/70">
-                Accounts open in Step 2. Browsing is open to everyone today.
+                Free to join. Browsing is open to everyone.
               </p>
             </Reveal>
           </div>

@@ -10,7 +10,7 @@ export const MOBILE_NAV = [
   { label: "Search", to: "/resources", icon: "Search", enabled: true },
   { label: "Resources", to: "/resources", icon: "FileText", enabled: true },
   { label: "Community", to: "/community", icon: "Users", enabled: false },
-  { label: "Profile", to: "/profile", icon: "User", enabled: false },
+  { label: "Profile", to: "/profile", icon: "User", enabled: true },
 ];
 
 export const FOOTER_SECTIONS = [

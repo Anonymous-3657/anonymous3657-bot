@@ -1,0 +1,36 @@
+{
+  "summary": "Iter6 regression of the iter5 permission bug fix (STAFF_ROLES + require_staff outer gate on /api/admin + APP_ENV-driven cookies). ALL 4 backend suites + a new dedicated RBAC suite pass, and the browser flow confirms a signed-in student sees the unauthorized state on /admin (never counts). Backend: test_auth_backend.py 38/38, test_step1_backend.py + test_admin_backend.py 46/46, test_lockout_regression.py 6/6, new test_rbac_iter6.py 17/17 -> 107/107. RBAC suite explicitly asserts 403 for a fresh student AND a promoted-to-contributor account on GET /admin/overview, /admin/entities/universities, /admin/entities/categories, /admin/users, POST /admin/entities/resources and DELETE /admin/entities/categories/{id}; asserts moderator gets 200 on /admin/overview + can read universities but is still 403 on POST /admin/users and POST /admin/entities/universities; asserts admin login+logout end-to-end with cookies + /me. Frontend (desktop 1920x1080 + mobile 390x844): student registered via /api/auth/register with real UNIV_ID/COURSE_ID, logged in via /login form -> dashboard shows dashboard-verify-banner, /profile has profile-save and save succeeds, reload keeps /me=200, logout clears to /me=401, re-login restores /me=200. Student visiting /admin renders unauthorized-state and admin-overview-counts is ABSENT on both desktop and 390px mobile. Admin login via /admin/login renders admin-overview-counts=true, reload keeps session, logout clears. Public pages / /resources /universities /courses /categories all load with no non-401 console errors (the 401s are the normal unauthenticated /api/auth/me probes on public pages). Cleanup performed: users, rate_limits, login_attempts, otp_codes, auth_tokens purged; only admin@cgstudentportal.in remains in users.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/admin as signed-in student", "issues": ["UnauthorizedState copy says 'Accounts arrive in Step 2 of the CG Student Portal roadmap' — that copy is now stale since Step 2 shipped. Suggest replacing with 'You do not have permission to access the admin panel.'"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_rbac_iter6.py",
+    "/app/test_reports/pytest/auth_iter6.xml",
+    "/app/test_reports/pytest/regr_iter6_main.xml",
+    "/app/test_reports/pytest/lockout_iter6.xml",
+    "/app/test_reports/pytest/rbac_iter6.xml"
+  ],
+  "action_items": [
+    "OPTIONAL polish (non-blocking): refresh the UnauthorizedState copy on /admin — 'Accounts arrive in Step 2 …' is stale.",
+    "OPTIONAL: /app/frontend/src/components/admin/RequireStaff.jsx hardcodes STAFF_ROLES=['admin','moderator'] on the client, but backend STAFF_ROLES contains 8 roles (content_reviewer, support, finance_manager, university_manager, college_manager …). Backend correctly lets those roles in, but the current client guard would still show them the UnauthorizedState. If staff-beyond-moderator ever exists, widen the client list to match backend.",
+    "Deferred (already flagged in iter5, not bugs): CORS explicit allowlist for prod, token_version rotation on sensitive changes, seed_admin log line on password rotation."
+  ],
+  "critical_code_review_comments": [
+    "Fix applied correctly: /api/admin router now carries dependencies=[Depends(require_staff)] and /admin/overview switched to require_staff — no student/contributor can reach any admin endpoint. Verified by both pytest and a live-browser navigation to /admin as a real student.",
+    "set_auth_cookies() now branches on APP_ENV; with APP_ENV=development it stays Secure+SameSite=None (correct for the preview HTTPS domain). Login/refresh/logout cookies verified end-to-end.",
+    "Client-side STAFF_ROLES in RequireStaff.jsx is a subset of backend STAFF_ROLES — not a security issue (backend is authoritative), but it will unnecessarily block legit staff roles (content_reviewer, support, *_manager) from seeing the admin UI shell."
+  ],
+  "updated_files": ["/app/backend/tests/test_rbac_iter6.py (new)"],
+  "success_rate": {"backend": "100% (107/107 across 4 suites)", "frontend": "100% of scoped flows (student journey + admin journey, desktop and 390px mobile)"},
+  "test_credentials": "Admin: admin@cgstudentportal.in / CgAdmin@2026. Test students created ephemerally via POST /api/auth/register with StrongPass1, cleaned up.",
+  "seed_data_creation": "New /app/backend/tests/test_rbac_iter6.py creates ~4 throwaway users (student + contributor + moderator + one for cookie test), then teardown removes them via admin DELETE and direct mongo cleanup. Final state: users has only admin@cgstudentportal.in; rate_limits, login_attempts, otp_codes, auth_tokens are empty.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "The iter5 critical bug is FIXED. When adding more admin endpoints, they will inherit the require_staff outer gate automatically because it is set on the router itself in /app/backend/routers/admin.py. For future frontend tests, note that (a) shadcn Selects in /register are keyboard-picked via option role, but registering via the API with real UNIV_ID/COURSE_ID (fetched from /api/universities and /api/courses) is far more reliable, and (b) the pytest runner does NOT have pymongo — use MongoClient inside the *pytest* process only (which lives in the venv with pymongo), and use requests-only paths inside the mcp_browser_automation script.",
+  "rca of the issue": "Not applicable — iter5 bug is confirmed FIXED. Reproduction from iter5 (student -> GET /api/admin/overview -> 200) now returns 403 with detail 'Staff access only', enforced at the router level via dependencies=[Depends(require_staff)] in /app/backend/routers/admin.py plus STAFF_ROLES/require_staff defined in /app/backend/auth.py."
+}

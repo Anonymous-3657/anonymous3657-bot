@@ -312,9 +312,9 @@ class TestStudentRBAC:
         s, r = _login(stu["email"], stu["_password"])
         assert r.status_code == 200
 
-        # Overview is catalog:read -> student has it
+        # Overview is staff-only -> student must be refused
         ov = s.get(f"{API}/admin/overview")
-        assert ov.status_code == 200
+        assert ov.status_code == 403
 
         # Cannot list users
         lu = s.get(f"{API}/admin/users")

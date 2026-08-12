@@ -62,6 +62,19 @@ async def issue_session(response: Response, user: dict):
     )
 
 
+async def resolve_college(college_code: int) -> dict:
+    """Colleges are only ever accepted from the official master list."""
+    college = await db.colleges.find_one({
+        "college_code": int(college_code),
+        "is_deleted": {"$ne": True},
+        "is_active": True,
+    })
+    if not college:
+        raise HTTPException(status_code=400,
+                            detail="Select your college from the official list")
+    return college
+
+
 async def send_verification(user: dict, request: Request):
     token = await issue_token(str(user["_id"]), "email_verify", timedelta(hours=VERIFY_TTL_HOURS))
     base = await link_base(request)
@@ -79,6 +92,7 @@ class RegisterPayload(BaseModel):
     confirm_password: str
     university_id: str
     college_id: str | None = None
+    college_code: int
     course_id: str
     semester_or_year: str = Field(min_length=1, max_length=40)
     accept_terms: bool
@@ -115,6 +129,9 @@ async def register(payload: RegisterPayload, request: Request, response: Respons
                             detail="Please accept the Terms and Privacy Policy to continue")
     validate_password(payload.password)
 
+    college = await resolve_college(payload.college_code)
+
+
     email = payload.email.lower().strip()
     if await db.users.find_one({"email": email}):
         raise HTTPException(status_code=409, detail="An account with this email already exists")
@@ -144,7 +161,11 @@ async def register(payload: RegisterPayload, request: Request, response: Respons
         "avatar_url": None,
         "bio": None,
         "university_id": str(university["_id"]),
-        "college_id": payload.college_id or None,
+        "college_id": str(college["_id"]),
+        "college_code": college["college_code"],
+        "college_name": college.get("college_name") or college.get("name"),
+        "college_type": college.get("college_type"),
+        "district": college.get("district"),
         "course_id": str(course["_id"]),
         "semester_or_year": payload.semester_or_year.strip(),
         "accepted_terms_at": now,
@@ -418,6 +439,7 @@ class ProfilePayload(BaseModel):
     phone: str | None = Field(default=None, max_length=15)
     university_id: str | None = None
     college_id: str | None = None
+    college_code: int | None = None
     course_id: str | None = None
     semester_or_year: str | None = Field(default=None, max_length=40)
 
@@ -449,6 +471,17 @@ async def update_profile(payload: ProfilePayload, request: Request,
             if value and not ObjectId.is_valid(value):
                 raise HTTPException(status_code=400, detail=f"Invalid {field.replace('_id', '')}")
             updates[field] = value or None
+
+    # College can only ever be set from the official master list.
+    if data.get("college_code"):
+        college = await resolve_college(int(data["college_code"]))
+        updates.update({
+            "college_id": str(college["_id"]),
+            "college_code": college["college_code"],
+            "college_name": college.get("college_name") or college.get("name"),
+            "college_type": college.get("college_type"),
+            "district": college.get("district"),
+        })
 
     if not updates:
         raise HTTPException(status_code=400, detail="No changes to save")

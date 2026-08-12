@@ -1,0 +1,73 @@
+{
+  "summary": "Iteration 11 frontend E2E for CG Student Portal. Verified all 7 requested flows end-to-end via Playwright (single session run to preserve httpOnly cookies): student rejection-reason visibility, approved-upload state on /dashboard/uploads and 'Recently approved PDFs' list, Study Buddy real PDF summarisation (Exam notes mode), bookmark toggle + shelf + removal, admin exam schedule create + student countdown + delete, authorization block on /admin/pdfs and /admin/colleges for a student, and 390px mobile responsiveness across /register, /dashboard, /dashboard/uploads/new, /bookmarks and /admin/pdfs. Every flow passed after a minor test-data adjustment (backend rejects re-upload of identical bytes with 'You have already uploaded this exact file' - used a freshly generated PDF to create the pending upload for the rejection scenario).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Bookmarks (/bookmarks shelf-pdf-list)",
+        "issue": "After clicking pdf-bookmark-toggle inside the shelf card to un-save an item, the card is not immediately removed from shelf-pdf-list (button flips from 'Saved' to 'Save' but the item remains until the page is re-fetched). A fresh navigation to /bookmarks correctly shows the empty state. Minor UX polish: refetch or filter locally after toggle.",
+        "selector": "[data-testid=\"shelf-pdf-list\"] [data-testid^=\"pdf-bookmark-toggle-\"]",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_11.json"],
+  "action_items": [
+    "Optional: on Bookmarks page, after un-bookmarking a PDF from within shelf-pdf-list, remove the card from the list without requiring navigation (local state update or refetch)."
+  ],
+  "critical_code_review_comments": [
+    "Duplicate-upload rejection message ('You have already uploaded this exact file') is a good server-side guard, but the /dashboard/uploads/new form silently keeps the user on the same page with only a small alert. Consider mapping the specific error into an inline field/error toast with clearer copy and a retry hint.",
+    "The 'Rejected' status pill only exposes the rejection reason inline (upload-reason-<id>), which is good. Confirm the same reason is echoed via API for future email/notification use."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested (frontend-only iteration)", "frontend": "100% of requested scenarios passed" },
+  "test_credentials": "Student iter9student@example.com / StrongPass1 (college_code 301, Bachelor of Commerce, Semester 1). Admin admin@cgstudentportal.in / CgAdmin@2026. Both loaded from /app/memory/test_credentials.md context.",
+  "seed_data_creation": "Created /tmp/reject.pdf (freshly generated via reportlab) because the previously used /tmp/test.pdf is already tied to the student's approved 'T10 Test Upload' and the backend enforces per-user file-hash uniqueness. The rejected upload was deleted at the end of the test. Exam schedule (id 6a7c5aa5d68278e50b17e99a) created for 'Bachelor of Commerce / Semester 1 / Main / 2025-26' with start_date +20 days and archived (deleted) afterwards.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Student iter9student@example.com currently has ONE upload: 'T10 Test Upload' (approved, id 6a7c55ac839581329d975feb, hash of /tmp/test.pdf). To test the rejection reason flow again generate a brand-new PDF (e.g. with reportlab) - reusing /tmp/test.pdf triggers 'You have already uploaded this exact file'. Authorization pages render a friendly 'You do not have access to this area' block without redirect - do NOT assert URL redirect, assert the message + absence of admin-* testids. Exam-schedule form uses ids of the form #field-exam_schedules-<field_name> (not #course_id); wait for the ref course_id options to populate before selecting 'Bachelor of Commerce'. Bookmark unsaving from the shelf leaves the card visible until re-navigation (minor UX). All 5 mobile screens at 390px had docWidth == clientWidth == 390 (no horizontal overflow).",
+  "detailed_results": {
+    "rejection_reason": {
+      "pending_id": "6a7c5b5cd68278e50b17e9a3",
+      "status_pill": "pdf-status-rejected present",
+      "upload_reason_text": "Reason: Pages are unreadable, please rescan",
+      "cleanup": "deleted by student"
+    },
+    "approved_upload_state": {
+      "pdf_id": "6a7c55ac839581329d975feb",
+      "pdf-status-approved_on_/dashboard/uploads": true,
+      "shows_in_dashboard-pdf-list": true
+    },
+    "study_buddy_pdf_summary": {
+      "mode": "Exam notes",
+      "selected_pdf": "T10 Test Upload",
+      "summary_generated": true,
+      "error_banner": "",
+      "preview": "**Revision Notes: Chhattisgarh Rivers** ... Mahanadi River ... Origin: Sihawa hills, Dhamtari district ..."
+    },
+    "bookmarks": {
+      "add_via_dashboard": "T10 Test Upload appears in shelf-pdf-list",
+      "remove_from_shelf": "toggle flips (Saved -> Save) and after re-navigation shelf is empty; item not removed immediately from DOM (minor UX)"
+    },
+    "exam_schedule": {
+      "created_id": "6a7c5aa5d68278e50b17e99a",
+      "start_date": "2026-09-01 (today +20 days)",
+      "end_date": "2026-09-08",
+      "student_dashboard-exam-days_text": "20 days left",
+      "cleanup": "archived/deleted via admin-exam_schedules-delete-<id>"
+    },
+    "authorization_as_student": {
+      "/admin/pdfs": "Renders 'You do not have access to this area' block; no admin-* testids present",
+      "/admin/colleges": "Same forbidden block; no admin controls rendered"
+    },
+    "mobile_390px": {
+      "/register": "no horizontal overflow (docWidth=390, clientWidth=390)",
+      "/dashboard": "no horizontal overflow",
+      "/dashboard/uploads/new": "no horizontal overflow",
+      "/bookmarks": "no horizontal overflow",
+      "/admin/pdfs (as admin)": "no horizontal overflow"
+    }
+  }
+}

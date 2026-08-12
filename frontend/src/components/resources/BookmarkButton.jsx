@@ -13,9 +13,13 @@ const publish = () => listeners.forEach((fn) => fn(cache));
 export const useBookmarks = () => {
   const { user } = useAuth();
   const [ids, setIds] = useState(cache || []);
+  const [loaded, setLoaded] = useState(cache !== null);
 
   useEffect(() => {
-    const listener = (next) => setIds(next || []);
+    const listener = (next) => {
+      setIds(next || []);
+      setLoaded(true);
+    };
     listeners.add(listener);
     if (user && cache === null) {
       cache = [];
@@ -27,6 +31,7 @@ export const useBookmarks = () => {
         })
         .catch(() => {
           cache = [];
+          publish();
         });
     }
     if (!user) {
@@ -36,7 +41,7 @@ export const useBookmarks = () => {
     return () => listeners.delete(listener);
   }, [user]);
 
-  const toggle = async (resourceId) => {
+  const toggle = async (resourceId, kind = "resource") => {
     const saved = (cache || []).includes(resourceId);
     try {
       if (saved) {
@@ -44,7 +49,8 @@ export const useBookmarks = () => {
         cache = (cache || []).filter((id) => id !== resourceId);
         toast.success("Removed from your shelf");
       } else {
-        await studentApi.addBookmark(resourceId);
+        if (kind === "pdf") await studentApi.addPdfBookmark(resourceId);
+        else await studentApi.addBookmark(resourceId);
         cache = [...(cache || []), resourceId];
         toast.success("Saved to your shelf");
       }
@@ -54,12 +60,39 @@ export const useBookmarks = () => {
     }
   };
 
-  return { ids, toggle, isSaved: (id) => ids.includes(id) };
+  return { ids, loaded, toggle, isSaved: (id) => ids.includes(id) };
 };
 
 export const clearBookmarkCache = () => {
   cache = null;
   publish();
+};
+
+export const PdfBookmarkButton = ({ pdfId }) => {
+  const { user } = useAuth();
+  const { isSaved, toggle } = useBookmarks();
+  if (!user) return null;
+
+  const saved = isSaved(pdfId);
+  return (
+    <button
+      type="button"
+      onClick={() => toggle(pdfId, "pdf")}
+      aria-pressed={saved}
+      aria-label={saved ? "Remove PDF from my shelf" : "Save PDF to my shelf"}
+      data-testid={`pdf-bookmark-toggle-${pdfId}`}
+      className={`inline-flex items-center gap-2 text-sm transition-colors duration-200 ${
+        saved ? "text-brand-accent" : "text-muted hover:text-fg"
+      }`}
+    >
+      {saved ? (
+        <BookmarkCheck className="h-4 w-4" aria-hidden="true" />
+      ) : (
+        <Bookmark className="h-4 w-4" aria-hidden="true" />
+      )}
+      {saved ? "Saved" : "Save"}
+    </button>
+  );
 };
 
 export const BookmarkButton = ({ resourceId }) => {

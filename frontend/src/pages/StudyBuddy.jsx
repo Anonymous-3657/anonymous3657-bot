@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FileText, ListChecks, Send, Sparkles, Trash2 } from "lucide-react";
+import { FileSearch, FileText, ListChecks, Send, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -7,13 +7,24 @@ import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { SkeletonBlock } from "@/components/common/Skeletons";
 import { FormAlert, SelectInput, TextInput, inputClass } from "@/components/auth/FormControls";
 import { errorMessage, useAuth } from "@/context/AuthContext";
-import { aiApi } from "@/services/api";
+import { aiApi, pdfApi } from "@/services/api";
 import { useSeo } from "@/hooks/useSeo";
 
 const TABS = [
   { key: "ask", label: "Ask a doubt", icon: Sparkles },
+  { key: "pdf", label: "Summarise a PDF", icon: FileSearch },
   { key: "summary", label: "Summarise notes", icon: FileText },
   { key: "practice", label: "Practice questions", icon: ListChecks },
+];
+
+const PDF_MODES = [
+  { value: "short", label: "Short summary" },
+  { value: "detailed", label: "Detailed summary" },
+  { value: "key_points", label: "Important points" },
+  { value: "exam_notes", label: "Exam notes" },
+  { value: "definitions", label: "Key definitions" },
+  { value: "questions", label: "Important questions" },
+  { value: "unit_wise", label: "Unit-wise summary" },
 ];
 
 const Bubble = ({ role, content }) => (
@@ -48,6 +59,9 @@ export default function StudyBuddy() {
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState("5");
   const [difficulty, setDifficulty] = useState("medium");
+  const [pdfs, setPdfs] = useState([]);
+  const [pdfId, setPdfId] = useState("");
+  const [pdfMode, setPdfMode] = useState("short");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const endRef = useRef(null);
@@ -62,6 +76,14 @@ export default function StudyBuddy() {
 
   useEffect(() => {
     loadSessions();
+    Promise.all([
+      pdfApi.approved({ limit: 60 }).catch(() => ({ items: [] })),
+      pdfApi.mine().catch(() => ({ items: [] })),
+    ]).then(([approved, mine]) => {
+      const merged = [...approved.items, ...mine.items.filter((m) => m.status !== "rejected")];
+      const unique = [...new Map(merged.map((p) => [p.id, p])).values()];
+      setPdfs(unique);
+    });
   }, []);
 
   useEffect(() => {
@@ -147,6 +169,28 @@ export default function StudyBuddy() {
         difficulty,
       });
       setMessages((m) => [...m, { role: "assistant", content: data.questions }]);
+      await loadSessions();
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const runPdfSummary = async (e) => {
+    e.preventDefault();
+    if (!pdfId) {
+      setError("Choose a PDF first.");
+      return;
+    }
+    const chosen = pdfs.find((p) => p.id === pdfId);
+    const modeLabel = PDF_MODES.find((m) => m.value === pdfMode)?.label;
+    setError("");
+    setBusy(true);
+    setMessages([{ role: "user", content: `${modeLabel} of ${chosen?.title || "PDF"}` }]);
+    try {
+      const data = await aiApi.pdfSummary({ pdf_id: pdfId, mode: pdfMode });
+      setMessages((m) => [...m, { role: "assistant", content: data.summary }]);
       await loadSessions();
     } catch (err) {
       setError(errorMessage(err));
@@ -295,6 +339,43 @@ export default function StudyBuddy() {
                   <Send className="h-4 w-4" aria-hidden="true" />
                   Ask
                 </button>
+              </form>
+            )}
+
+            {tab === "pdf" && (
+              <form onSubmit={runPdfSummary} className="space-y-4" data-testid="ai-pdf-form">
+                <SelectInput
+                  id="ai-pdf-select"
+                  label="Choose a PDF"
+                  value={pdfId}
+                  onChange={(e) => setPdfId(e.target.value)}
+                  placeholder={pdfs.length ? "Select a PDF" : "No PDFs available yet"}
+                  options={pdfs.map((p) => ({
+                    value: p.id,
+                    label: `${p.title}${p.status === "pending" ? " (pending review)" : ""}`,
+                  }))}
+                  hint="Approved portal PDFs and your own uploads"
+                />
+                <SelectInput
+                  id="ai-pdf-mode"
+                  label="What do you need?"
+                  value={pdfMode}
+                  onChange={(e) => setPdfMode(e.target.value)}
+                  placeholder="Short summary"
+                  options={PDF_MODES}
+                />
+                <button
+                  type="submit"
+                  disabled={busy || !pdfId}
+                  data-testid="ai-pdf-submit"
+                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-brand-primary font-heading text-sm font-medium text-white transition-colors duration-200 hover:bg-brand-primaryDark disabled:opacity-60 sm:w-auto sm:px-8"
+                >
+                  Generate from PDF
+                </button>
+                <p className="text-xs text-muted/70">
+                  Text is read directly from the PDF. Scanned or image-only PDFs cannot be
+                  summarised — you will see a clear message instead of made-up content.
+                </p>
               </form>
             )}
 

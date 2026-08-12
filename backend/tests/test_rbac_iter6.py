@@ -37,7 +37,7 @@ def _register_student():
         "name": "Test Student", "username": f"stud{uuid.uuid4().hex[:8]}",
         "email": email, "password": "StrongPass1", "confirm_password": "StrongPass1",
         "phone": f"98{random.randint(10000000,99999999)}",
-        "university_id": UNIV_ID, "college_id": None,
+        "university_id": UNIV_ID, "college_id": None, "college_code": 301,
         "course_id": COURSE_ID, "semester_or_year": "1",
         "accept_terms": True, "accept_privacy": True,
     }

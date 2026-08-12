@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from auth import get_current_user
 from database import db
+from routers.pdfs import pdf_bytes_for
 from security import rate_limit
 
 logger = logging.getLogger(__name__)
@@ -218,6 +219,93 @@ async def practice(payload: PracticePayload, user: dict = Depends(get_current_us
     await store(session_id, user_id, "user", payload.topic, "practice")
     await store(session_id, user_id, "assistant", questions, "practice")
     return {"session_id": session_id, "questions": questions}
+
+
+# ----------------------------------------------------------- PDF summarisation
+PDF_MODES = {
+    "short": "Write a short summary in 4-6 sentences a student can read in a minute.",
+    "detailed": "Write a detailed, section-by-section summary with clear headings.",
+    "key_points": "List the most important points as 8-15 crisp bullets.",
+    "exam_notes": "Write compact exam revision notes: headings, short bullets, formulas "
+                  "and anything worth memorising.",
+    "definitions": "List the key definitions and terms with a one or two line "
+                   "explanation each.",
+    "questions": "List the most likely exam questions from this material, grouped as "
+                 "short-answer and long-answer, with the marks each might carry.",
+    "unit_wise": "Summarise unit by unit (or chapter by chapter). If the material has no "
+                 "unit structure, say so and summarise by topic instead.",
+}
+
+
+class PdfSummaryPayload(BaseModel):
+    pdf_id: str
+    mode: str = Field(default="short")
+
+
+def extract_pdf_text(data: bytes) -> str:
+    from io import BytesIO
+
+    from pypdf import PdfReader
+
+    try:
+        reader = PdfReader(BytesIO(data))
+        parts = [(page.extract_text() or "") for page in reader.pages[:60]]
+    except Exception:  # noqa: BLE001
+        logger.exception("PDF parsing failed")
+        raise HTTPException(
+            status_code=422,
+            detail="We could not read this PDF. It may be damaged or password protected.",
+        )
+    return "\n".join(parts).strip()
+
+
+@router.post("/pdf-summary")
+async def pdf_summary(payload: PdfSummaryPayload, user: dict = Depends(get_current_user)):
+    if payload.mode not in PDF_MODES:
+        raise HTTPException(status_code=400, detail="Unknown summary type")
+    user_id = str(user["_id"])
+    await rate_limit(f"ai:{user_id}", limit=40, window_seconds=3600,
+                     message="You have reached today's AI limit. Please try again later.")
+
+    doc, data = await pdf_bytes_for(payload.pdf_id, user)
+    text = extract_pdf_text(data)
+    if len(text) < 200:
+        raise HTTPException(
+            status_code=422,
+            detail="No readable text could be extracted from this PDF. It looks like a "
+                   "scanned or image-only document, so a summary cannot be generated.",
+        )
+    text = text[:MAX_INPUT_CHARS]
+
+    session_id = uuid.uuid4().hex
+    chat = build_chat(
+        session_id,
+        "You summarise study material for Indian university students. Use ONLY the text "
+        "provided — never add facts, questions or definitions that are not present in it. "
+        "If the material does not cover something, say so plainly. "
+        f"Task: {PDF_MODES[payload.mode]}",
+        LONG_TEXT_MODEL,
+    )
+    summary = await run_llm(chat, f"Study material titled '{doc.get('title')}':\n\n{text}")
+
+    await db.ai_sessions.insert_one({
+        "session_id": session_id,
+        "user_id": user_id,
+        "title": f"{doc.get('title', 'PDF')[:50]} · {payload.mode.replace('_', ' ')}",
+        "kind": "pdf_summary",
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
+    })
+    await store(session_id, user_id, "user",
+                f"{payload.mode.replace('_', ' ')} of {doc.get('title')}", "pdf_summary")
+    await store(session_id, user_id, "assistant", summary, "pdf_summary")
+    return {
+        "session_id": session_id,
+        "summary": summary,
+        "mode": payload.mode,
+        "title": doc.get("title"),
+        "extracted_characters": len(text),
+    }
 
 
 # ----------------------------------------------------------------- history

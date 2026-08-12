@@ -25,6 +25,11 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Bookmarks = lazy(() => import("@/pages/Bookmarks"));
 const StudyBuddy = lazy(() => import("@/pages/StudyBuddy"));
+const UploadPdf = lazy(() => import("@/pages/uploads/UploadPdf"));
+const MyUploads = lazy(() => import("@/pages/uploads/MyUploads"));
+
+const AdminPdfs = lazy(() => import("@/pages/admin/AdminPdfs"));
+const AdminColleges = lazy(() => import("@/pages/admin/AdminColleges"));
 
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
@@ -94,8 +99,41 @@ export default function App() {
               }
             />
 
+            <Route
+              path="/dashboard/uploads"
+              element={
+                <RequireAuth>
+                  <MyUploads />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/dashboard/uploads/new"
+              element={
+                <RequireAuth>
+                  <UploadPdf />
+                </RequireAuth>
+              }
+            />
+
             {/* Staff */}
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin/pdfs"
+              element={
+                <RequireStaff>
+                  <AdminPdfs />
+                </RequireStaff>
+              }
+            />
+            <Route
+              path="/admin/colleges"
+              element={
+                <RequireStaff>
+                  <AdminColleges />
+                </RequireStaff>
+              }
+            />
             <Route
               path="/admin"
               element={

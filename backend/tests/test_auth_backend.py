@@ -74,6 +74,7 @@ def build_register_payload(**overrides):
         "confirm_password": strong_pw(),
         "university_id": UNIV_ID,
         "college_id": None,
+        "college_code": 301,
         "course_id": COURSE_ID,
         "semester_or_year": "1",
         "accept_terms": True,

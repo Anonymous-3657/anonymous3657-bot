@@ -1,4 +1,5 @@
 """Read-only catalog APIs: states, universities, colleges, courses, subjects, categories."""
+import re
 from typing import Optional
 
 from bson import ObjectId
@@ -62,6 +63,48 @@ async def get_university(slug: str):
         "courses": courses,
         "colleges": colleges,
         "resource_count": await db.resources.count_documents({"university_id": uid, **ACTIVE}),
+    }
+
+
+@router.get("/colleges/master")
+async def colleges_master(
+    q: Optional[str] = None,
+    district: Optional[str] = None,
+    college_type: Optional[str] = None,
+    include_inactive: bool = False,
+    limit: int = Query(200, le=300),
+):
+    """Master list of affiliated colleges — the single source of truth for the
+    student college dropdown. Searchable by name and by college code."""
+    filters: dict = {"college_code": {"$exists": True}, "is_deleted": {"$ne": True}}
+    if not include_inactive:
+        filters["is_active"] = True
+    if district:
+        filters["district"] = district
+    if college_type:
+        filters["college_type"] = college_type
+    if q:
+        term = q.strip()[:80]
+        clauses = [{"college_name": {"$regex": re.escape(term), "$options": "i"}}]
+        if term.isdigit():
+            clauses.append({"college_code": int(term)})
+        filters["$or"] = clauses
+
+    cursor = db.colleges.find(filters).sort([("district", 1), ("college_name", 1)]).limit(limit)
+    items = [{
+        "id": str(d["_id"]),
+        "college_code": d.get("college_code"),
+        "college_name": d.get("college_name") or d.get("name"),
+        "college_type": d.get("college_type"),
+        "college_type_label": d.get("college_type_label"),
+        "district": d.get("district"),
+        "is_active": d.get("is_active", True),
+    } for d in await cursor.to_list(limit)]
+    return {
+        "items": items,
+        "total": await db.colleges.count_documents(filters),
+        "districts": sorted(await db.colleges.distinct(
+            "district", {"college_code": {"$exists": True}, "is_deleted": {"$ne": True}})),
     }
 
 

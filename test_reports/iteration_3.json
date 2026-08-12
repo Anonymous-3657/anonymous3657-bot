@@ -1,0 +1,32 @@
+{
+  "summary": "Iteration 3 verifies the brute-force lockout fix and the removal of access_token from login/refresh JSON bodies. Full backend regression (test_admin_backend.py 21/21 + test_step1_backend.py 25/25 = 46/46) PASSES, including the previously-failing TestAuth::test_brute_force_lockout. New targeted regression /app/backend/tests/test_lockout_regression.py (6 tests) also PASSES: (a) login JSON has no access_token/refresh_token, only {user}; (b) refresh JSON has no tokens, rotates cookies, /auth/me still 200 afterwards; (c) 5 failed logins for a fresh throwaway email return 401 and the 6th returns 429 with a readable detail message; (d) after a lockout on a throwaway email the admin (admin@cgstudentportal.in) still logs in successfully; (e) fail 3x then a successful login DELETES the login_attempts counter doc and further logins keep working; (f) admin session rides on httpOnly cookies alone (no Authorization header) and can call /auth/me and /admin/overview. login_attempts collection contains exactly ONE doc per email under identifier 'email:<lowercased>'; the old per-proxy-IP fragmentation is gone. Frontend smoke: /admin/login with admin creds lands on /admin, counts render (admin-overview-counts visible), page reload keeps the session, document.cookie does NOT expose access_token (httpOnly confirmed on client), and admin-logout-button redirects to /admin/login.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_admin_backend.py",
+    "/app/backend/tests/test_step1_backend.py",
+    "/app/backend/tests/test_lockout_regression.py",
+    "/app/test_reports/pytest/regression_iter3.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Reported-but-not-fixed (deferred by main agent, still valid): server.py CORS uses allow_origin_regex='.*' with allow_credentials=True while CORS_ORIGINS='*' in .env — must be an explicit allowlist before production deploy.",
+    "Reported-but-not-fixed (deferred by main agent): PUT /api/admin/users/{id} lets the actor change their own password without re-confirming the current password. Low risk while only admins have the panel, but worth adding for defence in depth.",
+    "auth.py client_ip() helper is now present but unused. It is intended for future per-IP throttling; either wire it into a secondary rate limit (per-IP window) or delete it to avoid dead code.",
+    "auth.py set_auth_cookies hard-codes samesite='none' + secure=True, which is fine for the https preview URL but will break http localhost dev — consider gating on APP_ENV.",
+    "auth.py seed_admin silently overwrites the stored password every restart when ADMIN_PASSWORD in .env differs. This is intentional and documented, but a startup log line ('admin password rotated from env') would make it observable."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_lockout_regression.py"
+  ],
+  "success_rate": {
+    "backend": "100% (46/46 legacy + 6/6 new lockout regression)",
+    "frontend": "100% of scoped admin smoke (login, overview counts, reload persistence, httpOnly, logout)"
+  },
+  "test_credentials": "admin@cgstudentportal.in / CgAdmin@2026 (verified working).",
+  "seed_data_creation": "Ephemeral TEST_bf_* throwaway emails were used for lockout tests and their login_attempts docs were cleaned up in fixtures and by a final delete_many({identifier: /test_bf_/}). No TEST_ users left in db.users.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Auth is now cookie-only (no access_token in JSON). Lockout key is 'email:<lower>' — one doc per email in login_attempts. Full regression: pytest backend/tests/test_admin_backend.py backend/tests/test_step1_backend.py backend/tests/test_lockout_regression.py (52 tests, ~11s). Admin creds unchanged. All admin data-testids from prior iteration still valid.",
+  "rca of the issue": "PREVIOUSLY: identifier was 'client_host:email' but request.client.host was the K8s ingress upstream pod IP which rotates across at least two pods, splitting the counter across two login_attempts docs so MAX_FAILED_ATTEMPTS was never reached. FIX (verified this iteration): lockout_identifier(email) now returns 'email:<lower>' — a single row per account. Confirmed by (1) 5x401 then 429 on 6th attempt for a fresh throwaway, (2) exactly one login_attempts doc found under identifier='email:<throwaway>' after the burst, (3) admin login still succeeds while throwaway is locked, (4) successful login clears the counter doc."
+}

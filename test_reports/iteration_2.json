@@ -1,0 +1,41 @@
+{
+  "summary": "Step 2a Admin Panel tested end-to-end. Backend: 20/21 admin pytest passed (auth login/me/logout/refresh, invalid bearer 401, unauth 401 on /admin/*, admin overview counts, entity CRUD across categories with mass-assignment guard (role/is_deleted/created_by injections correctly ignored), duplicate-slug 409, required-field 400, public categories mirror reflects create/archive, user CRUD + password min-length + admin cannot change own role + cannot delete self, moderator RBAC (overview OK, user:write 403, catalog:delete 403 on university delete, catalog:write 403 on university create, resource:write 201 succeeds), student RBAC (users list 403, resource create 403). Step 1 regression: 25/25 still pass. Frontend: /admin unauth->redirect to /admin/login, wrong password shows readable 'Invalid email or password', correct login lands on overview with counts for states/universities/colleges/courses/subjects/categories/resources/users, refresh keeps session, categories create via UI works and row shows in table, universities/users tables render, logout clears session and /admin re-redirects to login, mobile 390px sidebar toggle opens the section menu with no horizontal scroll.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/auth/login", "issue": "Brute-force lockout does NOT trigger. 7 sequential failed logins for the same email all returned 401, none returned 429. Root cause: identifier is built from request.client.host + email, but behind the K8s ingress the peer IP alternates between multiple upstream proxy IPs (observed 10.208.135.194 and 10.208.135.198 in login_attempts collection for the SAME email), so the counter is split across identifiers and never reaches MAX_FAILED_ATTEMPTS=5. Fix: honour X-Forwarded-For (first IP) OR use email alone as the identifier (or email + hashed IP fallback).", "priority": "HIGH"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_admin_backend.py",
+    "/app/backend/tests/test_step1_backend.py",
+    "/app/test_reports/pytest/admin_results.xml"
+  ],
+  "action_items": [
+    "Fix brute-force identifier so lockout actually engages behind the ingress proxy. Recommended: use email-only (case-insensitive) as the primary lockout key, and additionally use request.headers.get('x-forwarded-for','').split(',')[0].strip() (fallback to request.client.host) when computing the per-IP identifier. Currently the login_attempts collection contains rows for the same email under two different upstream proxy IPs (10.208.135.194 / 10.208.135.198), confirming counter fragmentation."
+  ],
+  "critical_code_review_comments": [
+    "auth.py record_failure/check_lockout use request.client.host which is the ingress upstream IP; this rotates across proxy pods and breaks the lockout counter. Must use X-Forwarded-For or email-only.",
+    "admin.py clean_payload correctly whitelists fields (mass-assignment guard verified), but if a request sends 'created_by' or 'is_deleted' those are silently dropped rather than rejected — consider logging a warning to help detect abuse attempts.",
+    "admin.py update_user allows setting password via PUT /admin/users/{id} without requiring the actor's current password re-confirmation, even when the actor is editing themselves; consider requiring re-auth for self password change.",
+    "auth_routes.py login response returns access_token in JSON body AND sets it as httpOnly cookie — the JSON copy defeats the purpose of httpOnly for any XSS attack. Consider removing access_token from the JSON response now that cookies are used.",
+    "auth.py set_auth_cookies always uses samesite='none' + secure=True which is fine on the current https preview URL but will break on http localhost dev; consider deriving from APP_ENV.",
+    "server.py CORS: when CORS_ORIGINS='*' the code uses allow_origin_regex='.*' with allow_credentials=True — this is a security risk in production because ANY origin can send credentialed requests. .env currently ships with CORS_ORIGINS='*'; production must set an explicit allowlist.",
+    "auth.py seed_admin: if ADMIN_PASSWORD env var is later removed but the admin already exists, the account still works (fine), but if someone changes it to a weak value the seed silently downgrades the password on every restart — acceptable but worth documenting."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_admin_backend.py"
+  ],
+  "success_rate": {"backend": "95% (20/21 admin tests + 25/25 Step 1 = 45/46)", "frontend": "100% of scoped admin flows"},
+  "test_credentials": "admin@cgstudentportal.in / CgAdmin@2026 (from /app/memory/test_credentials.md, works)",
+  "seed_data_creation": "Test fixtures create TEST_mod_* and TEST_stu_* users via /api/admin/users and archive them in teardown. One UI-created TEST_UICat_* category was cleaned up manually via a mongo script after testing. login_attempts collection has residual counter rows for TEST_bf_* and nobrute@x.com — cleaned. No leftover TEST_ records remain.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Admin regression suite at /app/backend/tests/test_admin_backend.py (21 tests, ~5s, uses REACT_APP_BACKEND_URL). One known failure: TestAuth::test_brute_force_lockout — DO NOT skip; keep it as a gate for the fix. Admin creds: admin@cgstudentportal.in / CgAdmin@2026. Frontend admin data-testids all verified working: admin-login-email/password/submit/error, admin-overview-counts, admin-count-<key>, admin-nav-<section>, admin-<entity>-table/create-button/form/form-submit, field-<entity>-<field>, admin-sidebar-toggle, admin-logout-button, admin-current-user. Delete uses window.confirm (accept it). Public /categories and /api/categories correctly reflect admin create/archive.",
+  "rca of the issue": "Brute-force lockout ineffective. Steps to reproduce: 6+ sequential POSTs to /api/auth/login with same email and wrong password return 401 every time, never 429. RCA: request.client.host returns the ingress proxy pod IP (varies across two IPs). identifier = '<proxy_ip>:<email>' so the same email lands on two different login_attempts docs, each capped below MAX_FAILED_ATTEMPTS=5. Mitigation: change identifier to lower-cased email OR read request.headers.get('X-Forwarded-For') first token; then keep the per-IP identifier only as a secondary rate limit."
+}

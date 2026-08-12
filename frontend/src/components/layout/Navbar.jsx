@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, LogOut, Menu, User, X } from "lucide-react";
+import { Bookmark, LayoutDashboard, LogOut, Menu, Sparkles, User, X } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/brand/Logo";
 import { NAV_LINKS } from "@/constants/navigation";
@@ -45,6 +45,22 @@ export const Navbar = () => {
         <div className="hidden items-center gap-3 lg:flex">
           {user ? (
             <>
+              <Link
+                to="/study-buddy"
+                data-testid="nav-study-buddy-link"
+                className="inline-flex min-h-[40px] items-center gap-2 rounded-xl border border-brand-line px-4 font-heading text-sm text-fg transition-colors duration-200 hover:bg-brand-elevated"
+              >
+                <Sparkles className="h-4 w-4 text-brand-accent" aria-hidden="true" />
+                Study AI
+              </Link>
+              <Link
+                to="/bookmarks"
+                data-testid="nav-bookmarks-link"
+                aria-label="My shelf"
+                className="grid h-10 w-10 place-items-center rounded-xl border border-brand-line text-muted transition-colors duration-200 hover:text-fg"
+              >
+                <Bookmark className="h-4 w-4" aria-hidden="true" />
+              </Link>
               <Link
                 to="/dashboard"
                 data-testid="nav-dashboard-link"
@@ -130,6 +146,22 @@ export const Navbar = () => {
                   className="flex min-h-[48px] items-center border-b border-brand-line/60 font-heading text-sm text-fg"
                 >
                   Dashboard
+                </NavLink>
+                <NavLink
+                  to="/study-buddy"
+                  onClick={() => setOpen(false)}
+                  data-testid="nav-mobile-study-buddy"
+                  className="flex min-h-[48px] items-center border-b border-brand-line/60 font-heading text-sm text-fg"
+                >
+                  AI Study Buddy
+                </NavLink>
+                <NavLink
+                  to="/bookmarks"
+                  onClick={() => setOpen(false)}
+                  data-testid="nav-mobile-bookmarks"
+                  className="flex min-h-[48px] items-center border-b border-brand-line/60 font-heading text-sm text-fg"
+                >
+                  My shelf
                 </NavLink>
                 <NavLink
                   to="/profile"

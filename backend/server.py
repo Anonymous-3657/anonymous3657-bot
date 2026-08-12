@@ -11,7 +11,7 @@ from starlette.middleware.cors import CORSMiddleware  # noqa: E402
 
 from auth import seed_admin  # noqa: E402
 from database import close_client, ensure_indexes  # noqa: E402
-from routers import admin, auth_routes, catalog, meta, resources  # noqa: E402
+from routers import admin, ai, auth_routes, catalog, meta, resources, student  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,6 +40,8 @@ api_router.include_router(meta.router)
 api_router.include_router(catalog.router)
 api_router.include_router(resources.router)
 api_router.include_router(auth_routes.router)
+api_router.include_router(student.router)
+api_router.include_router(ai.router)
 api_router.include_router(admin.router)
 app.include_router(api_router)
 

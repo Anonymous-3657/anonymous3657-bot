@@ -57,3 +57,8 @@ async def ensure_indexes():
     await db.rate_limits.create_index("key", unique=True)
     await db.audit_events.create_index([("user_id", 1), ("created_at", -1)])
     await db.audit_events.create_index("event")
+    await db.bookmarks.create_index([("user_id", 1), ("resource_id", 1)], unique=True)
+    await db.bookmarks.create_index([("user_id", 1), ("created_at", -1)])
+    await db.ai_sessions.create_index("session_id", unique=True)
+    await db.ai_sessions.create_index([("user_id", 1), ("updated_at", -1)])
+    await db.ai_messages.create_index([("session_id", 1), ("created_at", 1)])

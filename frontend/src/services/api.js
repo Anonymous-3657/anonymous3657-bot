@@ -29,6 +29,22 @@ export const api = {
   resource: (slug) => get(`/resources/${slug}`),
 };
 
+export const studentApi = {
+  bookmarks: (params) => get("/me/bookmarks", params),
+  bookmarkIds: () => get("/me/bookmarks/ids"),
+  addBookmark: (resource_id) => http.post("/me/bookmarks", { resource_id }).then((r) => r.data),
+  removeBookmark: (resource_id) => http.delete(`/me/bookmarks/${resource_id}`).then((r) => r.data),
+};
+
+export const aiApi = {
+  sessions: () => get("/ai/sessions"),
+  messages: (sessionId) => get(`/ai/sessions/${sessionId}`),
+  ask: (body) => http.post("/ai/ask", body, { timeout: 120000 }).then((r) => r.data),
+  summarise: (body) => http.post("/ai/summarise", body, { timeout: 120000 }).then((r) => r.data),
+  practice: (body) => http.post("/ai/practice", body, { timeout: 120000 }).then((r) => r.data),
+  deleteSession: (sessionId) => http.delete(`/ai/sessions/${sessionId}`).then((r) => r.data),
+};
+
 export const adminApi = {
   overview: () => get("/admin/overview"),
   list: (entity, params) => get(`/admin/entities/${entity}`, params),

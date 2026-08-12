@@ -1,12 +1,17 @@
 import logging
 import os
 
-from fastapi import APIRouter, FastAPI, Request
-from fastapi.responses import JSONResponse
-from starlette.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
-from database import close_client, ensure_indexes
-from routers import catalog, meta, resources
+load_dotenv()
+
+from fastapi import APIRouter, FastAPI, Request  # noqa: E402
+from fastapi.responses import JSONResponse  # noqa: E402
+from starlette.middleware.cors import CORSMiddleware  # noqa: E402
+
+from auth import seed_admin  # noqa: E402
+from database import close_client, ensure_indexes  # noqa: E402
+from routers import admin, auth_routes, catalog, meta, resources  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,28 +19,42 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="CG Student Portal API", version="0.1.0")
+app = FastAPI(title="CG Student Portal API", version="0.2.0")
 
 api_router = APIRouter(prefix="/api")
 
 
 @api_router.get("/")
 async def root():
-    return {"service": "CG Student Portal API", "version": "0.1.0"}
+    return {"service": "CG Student Portal API", "version": "0.2.0"}
 
 
 api_router.include_router(meta.router)
 api_router.include_router(catalog.router)
 api_router.include_router(resources.router)
+api_router.include_router(auth_routes.router)
+api_router.include_router(admin.router)
 app.include_router(api_router)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Credentialed requests cannot use a literal "*" origin, so reflect the caller's
+# origin instead when CORS_ORIGINS is left open.
+_origins = [o.strip() for o in os.environ.get("CORS_ORIGINS", "*").split(",") if o.strip()]
+if "*" in _origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=".*",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 @app.middleware("http")
@@ -57,7 +76,8 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 @app.on_event("startup")
 async def on_startup():
     await ensure_indexes()
-    logger.info("Indexes ensured")
+    result = await seed_admin()
+    logger.info("Indexes ensured; admin seed: %s", result)
 
 
 @app.on_event("shutdown")

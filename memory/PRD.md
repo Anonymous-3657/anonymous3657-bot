@@ -40,11 +40,29 @@ Logo (centralized brand), AppShell, Navbar, Footer, BottomNav, Breadcrumbs, Page
 - Seed script `backend/seed.py` — idempotent, all records `is_demo=True`.
 - Regression suite `backend/tests/test_step1_backend.py` (25 tests, all passing).
 
+## Implemented — Step 2a: Admin panel + auth (2026-06)
+### Backend
+- `auth.py`: bcrypt hashing, JWT access (60 min) + refresh (7 days) as httpOnly/secure cookies, `get_current_user` re-reads the live user document (revoked roles take effect immediately), `require_permission` deny-by-default gate, `ROLE_PERMISSIONS` + `ROLE_RANK`, brute-force lockout keyed on the account (`email:<address>`; 5 failures → 15 min), idempotent `seed_admin()` from `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
+- `routers/auth_routes.py`: `POST /api/auth/login`, `/logout`, `/refresh`, `GET /api/auth/me`. Cookie-only session — no token in the JSON body. No public self-registration.
+- `routers/admin.py`: per-entity writable field whitelists (no mass assignment) for states, universities, colleges, courses, subjects, categories, resources; `GET/POST/PUT/DELETE /api/admin/entities/{entity}` (soft delete), `GET /api/admin/overview`, and user CRUD at `/api/admin/users` with a role-rank guard (nobody grants a role above their own, nobody edits their own role or deletes their own account).
+- CORS switched to credential-safe origin reflection; `login_attempts` index added.
+
+### Frontend
+- `AuthContext` (null = checking / false = signed out / object = signed in), `RequireStaff` route guard (admin + moderator), `AdminLayout` sidebar shell, generic `EntityManager` (table + create/edit modal + archive) driven by `constants/adminEntities.js`, `AdminLogin`, `AdminOverview`, `AdminEntityPage`, `AdminUsers`.
+- Routes: `/admin/login`, `/admin`, `/admin/:entity`, `/admin/users`.
+
+### Roles
+admin = full catalog + resources + users · moderator = catalog read, resource write/approve · contributor = resource write · student = read only.
+
+### Verified
+52 backend tests passing (25 Step 1 + 21 admin + 6 lockout regression) plus admin UI flows. One bug found and fixed: lockout counter was fragmenting across rotating ingress proxy IPs.
+
 ## Backlog
-### P0 (Step 2)
-- Authentication: registration, login, JWT/session, password hashing, email verification, role-based guards on APIs.
+### P0
+- Student-facing signup/login (and optional Google login), email verification, password reset.
 ### P1
-- Step 3 student dashboard + sidebar shell; Step 4 secure uploads, approval workflow, signed downloads.
+- Step 3 student dashboard + bookmarks; Step 4 secure uploads, approval workflow, signed downloads.
+- Set an explicit `CORS_ORIGINS` allowlist for production instead of the wildcard.
 ### P2
 - Step 5 admin panel; Step 6 coins/wallet; Step 7 premium/payments; Step 8 community/notifications; Step 9 AI tools; Step 10 production hardening.
 

@@ -1,0 +1,111 @@
+/** Field definitions for the generic admin CRUD screens. */
+export const ADMIN_ENTITIES = {
+  universities: {
+    label: "Universities",
+    icon: "Building2",
+    titleField: "name",
+    columns: ["name", "short_name", "slug", "status"],
+    fields: [
+      { name: "name", label: "Name", required: true },
+      { name: "short_name", label: "Short name" },
+      { name: "slug", label: "Slug", hint: "Auto-generated from the name if left blank" },
+      { name: "state_id", label: "State", type: "ref", ref: "states" },
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "official_website", label: "Official website" },
+      { name: "official_result_url", label: "Result URL" },
+      { name: "official_notice_url", label: "Notice URL" },
+      { name: "banner_url", label: "Banner image URL" },
+      { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
+    ],
+  },
+  colleges: {
+    label: "Colleges",
+    icon: "School",
+    titleField: "name",
+    columns: ["name", "city", "slug", "status"],
+    fields: [
+      { name: "name", label: "Name", required: true },
+      { name: "university_id", label: "University", type: "ref", ref: "universities", required: true },
+      { name: "slug", label: "Slug" },
+      { name: "city", label: "City" },
+      { name: "address", label: "Address" },
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
+    ],
+  },
+  courses: {
+    label: "Courses",
+    icon: "GraduationCap",
+    titleField: "name",
+    columns: ["name", "short_name", "course_type", "duration", "status"],
+    fields: [
+      { name: "name", label: "Name", required: true },
+      { name: "university_id", label: "University", type: "ref", ref: "universities", required: true },
+      { name: "short_name", label: "Short name" },
+      { name: "slug", label: "Slug" },
+      { name: "course_type", label: "Type", type: "select", options: ["UG", "PG", "Diploma", "Certificate"] },
+      { name: "duration", label: "Duration", hint: "e.g. 3 Years" },
+      { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
+    ],
+  },
+  subjects: {
+    label: "Subjects",
+    icon: "BookOpen",
+    titleField: "name",
+    columns: ["name", "code", "semester_or_year", "status"],
+    fields: [
+      { name: "name", label: "Name", required: true },
+      { name: "course_id", label: "Course", type: "ref", ref: "courses", required: true },
+      { name: "code", label: "Subject code" },
+      { name: "semester_or_year", label: "Semester / Year", hint: "e.g. Semester 1" },
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
+    ],
+  },
+  categories: {
+    label: "Categories",
+    icon: "Tags",
+    titleField: "name",
+    columns: ["name", "slug", "icon", "status"],
+    fields: [
+      { name: "name", label: "Name", required: true },
+      { name: "slug", label: "Slug" },
+      { name: "icon", label: "Lucide icon name", hint: "e.g. FileText, NotebookPen" },
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
+    ],
+  },
+  resources: {
+    label: "Resources",
+    icon: "FileText",
+    titleField: "title",
+    columns: ["title", "year", "file_type", "is_verified", "status"],
+    fields: [
+      { name: "title", label: "Title", required: true },
+      { name: "university_id", label: "University", type: "ref", ref: "universities" },
+      { name: "course_id", label: "Course", type: "ref", ref: "courses" },
+      { name: "subject_id", label: "Subject", type: "ref", ref: "subjects" },
+      { name: "category_id", label: "Category", type: "ref", ref: "categories" },
+      { name: "slug", label: "Slug" },
+      { name: "year", label: "Year", type: "number" },
+      { name: "file_type", label: "File type", type: "select", options: ["pdf", "doc", "ppt", "image"] },
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "is_verified", label: "Verified", type: "boolean" },
+      { name: "is_premium", label: "Premium", type: "boolean" },
+      { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
+    ],
+    note: "File uploads arrive in a later step — these records describe the resource only.",
+  },
+};
+
+export const ADMIN_NAV = [
+  { to: "/admin", label: "Overview", icon: "LayoutDashboard" },
+  ...Object.entries(ADMIN_ENTITIES).map(([key, cfg]) => ({
+    to: `/admin/${key}`,
+    label: cfg.label,
+    icon: cfg.icon,
+  })),
+  { to: "/admin/users", label: "Users & Roles", icon: "Users" },
+];
+
+export const ROLES = ["student", "contributor", "moderator", "admin"];

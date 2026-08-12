@@ -1,0 +1,276 @@
+import { useEffect, useState } from "react";
+import { Loader2, Plus, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { SkeletonBlock } from "@/components/common/Skeletons";
+import { EmptyState, ErrorState } from "@/components/common/StateViews";
+import { ROLES } from "@/constants/adminEntities";
+import { formatApiError, useAuth } from "@/context/AuthContext";
+import { adminApi } from "@/services/api";
+import { fmtDate } from "@/utils/format";
+import { useSeo } from "@/hooks/useSeo";
+
+const BLANK = { name: "", email: "", password: "", role: "student" };
+
+export default function AdminUsers() {
+  const { user: actor } = useAuth();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState(BLANK);
+  const [saving, setSaving] = useState(false);
+
+  useSeo({ title: "Users & roles — CG STUDENT PORTAL", path: "/admin/users" });
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await adminApi.users({ limit: 200 });
+      setItems(data.items);
+    } catch (e) {
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const create = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await adminApi.createUser(form);
+      toast.success("User created");
+      setCreating(false);
+      setForm(BLANK);
+      await load();
+    } catch (err) {
+      toast.error(formatApiError(err.response?.data?.detail) || err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const changeRole = async (record, role) => {
+    try {
+      await adminApi.updateUser(record.id, { role });
+      toast.success(`${record.email} is now ${role}`);
+      await load();
+    } catch (err) {
+      toast.error(formatApiError(err.response?.data?.detail) || err.message);
+    }
+  };
+
+  const remove = async (record) => {
+    if (!window.confirm(`Remove ${record.email}?`)) return;
+    try {
+      await adminApi.removeUser(record.id);
+      toast.success("User removed");
+      await load();
+    } catch (err) {
+      toast.error(formatApiError(err.response?.data?.detail) || err.message);
+    }
+  };
+
+  const inputClass =
+    "mt-2 min-h-[44px] w-full rounded-xl border border-brand-line bg-brand-elevated px-4 text-sm text-fg outline-none transition-colors duration-200 focus:border-brand-primary";
+
+  return (
+    <AdminLayout
+      title="Users & Roles"
+      description="Create staff accounts and change what each person can do."
+      actions={
+        <button
+          type="button"
+          onClick={() => setCreating(true)}
+          data-testid="admin-users-create-button"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-brand-primary px-5 font-heading text-sm font-medium text-white transition-colors duration-200 hover:bg-brand-primaryDark"
+        >
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          New user
+        </button>
+      }
+    >
+      {loading ? (
+        <div className="space-y-3">
+          <SkeletonBlock className="h-12 w-full" />
+          <SkeletonBlock className="h-12 w-full" />
+        </div>
+      ) : error ? (
+        <ErrorState onRetry={load} description={formatApiError(error.response?.data?.detail)} />
+      ) : items.length === 0 ? (
+        <EmptyState title="No users yet" />
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-brand-line bg-brand-surface">
+          <table className="w-full min-w-[720px] text-left" data-testid="admin-users-table">
+            <thead>
+              <tr className="border-b border-brand-line">
+                {["Name", "Email", "Role", "Status", "Last login", ""].map((h) => (
+                  <th key={h} className="px-5 py-4 font-heading text-xs uppercase tracking-wider text-muted">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((record) => (
+                <tr
+                  key={record.id}
+                  data-testid={`admin-user-row-${record.id}`}
+                  className="border-b border-brand-line/60 last:border-0"
+                >
+                  <td className="px-5 py-4 text-sm text-fg/85">{record.name}</td>
+                  <td className="px-5 py-4 text-sm text-fg/85">{record.email}</td>
+                  <td className="px-5 py-4">
+                    <select
+                      value={record.role}
+                      onChange={(e) => changeRole(record, e.target.value)}
+                      disabled={record.id === actor?.id}
+                      aria-label={`Role for ${record.email}`}
+                      data-testid={`admin-user-role-${record.id}`}
+                      className="min-h-[40px] rounded-xl border border-brand-line bg-brand-elevated px-3 text-sm text-fg disabled:opacity-50"
+                    >
+                      {ROLES.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-5 py-4 text-sm text-muted">{record.status}</td>
+                  <td className="px-5 py-4 text-sm text-muted">{fmtDate(record.last_login_at)}</td>
+                  <td className="px-5 py-4 text-right">
+                    <button
+                      type="button"
+                      onClick={() => remove(record)}
+                      disabled={record.id === actor?.id}
+                      aria-label={`Remove ${record.email}`}
+                      data-testid={`admin-user-delete-${record.id}`}
+                      className="grid h-10 w-10 place-items-center rounded-xl border border-brand-line text-muted transition-colors duration-200 hover:border-brand-error/50 hover:text-brand-error disabled:opacity-40"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {creating && (
+        <div
+          className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/70 p-4 sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Create user"
+        >
+          <form
+            onSubmit={create}
+            data-testid="admin-users-form"
+            className="w-full max-w-lg rounded-2xl border border-brand-line bg-brand-surface p-7"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <h2 className="font-heading text-lg font-semibold text-fg">New user</h2>
+              <button
+                type="button"
+                onClick={() => setCreating(false)}
+                aria-label="Close"
+                className="grid h-10 w-10 place-items-center rounded-xl border border-brand-line text-muted hover:text-fg"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-5">
+              <div>
+                <label htmlFor="user-name" className="font-heading text-sm font-medium text-fg">
+                  Name
+                </label>
+                <input
+                  id="user-name"
+                  data-testid="admin-user-field-name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label htmlFor="user-email" className="font-heading text-sm font-medium text-fg">
+                  Email <span className="text-brand-error">*</span>
+                </label>
+                <input
+                  id="user-email"
+                  type="email"
+                  required
+                  data-testid="admin-user-field-email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label htmlFor="user-password" className="font-heading text-sm font-medium text-fg">
+                  Password <span className="text-brand-error">*</span>
+                </label>
+                <input
+                  id="user-password"
+                  type="password"
+                  required
+                  minLength={8}
+                  data-testid="admin-user-field-password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className={inputClass}
+                />
+                <p className="mt-1.5 text-xs text-muted/70">Minimum 8 characters.</p>
+              </div>
+              <div>
+                <label htmlFor="user-role" className="font-heading text-sm font-medium text-fg">
+                  Role
+                </label>
+                <select
+                  id="user-role"
+                  data-testid="admin-user-field-role"
+                  value={form.role}
+                  onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  className={inputClass}
+                >
+                  {ROLES.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setCreating(false)}
+                className="min-h-[44px] rounded-xl border border-brand-line px-5 font-heading text-sm text-fg transition-colors duration-200 hover:bg-brand-elevated"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                data-testid="admin-users-form-submit"
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 font-heading text-sm font-medium text-white transition-colors duration-200 hover:bg-brand-primaryDark disabled:opacity-60"
+              >
+                {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                Create user
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </AdminLayout>
+  );
+}

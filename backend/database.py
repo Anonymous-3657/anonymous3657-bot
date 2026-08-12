@@ -50,3 +50,4 @@ async def ensure_indexes():
     await db.role_permissions.create_index(
         [("role_id", 1), ("permission_id", 1)], unique=True
     )
+    await db.login_attempts.create_index("identifier", unique=True)

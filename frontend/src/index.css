@@ -1,0 +1,158 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    /* Dark is the primary experience. Light tokens prepared for theme switching. */
+    :root,
+    .dark {
+        --brand-bg: #090e18;
+        --brand-surface: #111827;
+        --brand-elevated: #161b26;
+        --brand-border: #1f2937;
+        --brand-fg: #ffffff;
+        --brand-muted: #94a3b8;
+        --brand-primary: #2563eb;
+        --brand-primary-dark: #1e40af;
+        --brand-accent: #f59e0b;
+        --brand-accent-2: #6366f1;
+        --brand-success: #22c55e;
+        --brand-warning: #f59e0b;
+        --brand-error: #ef4444;
+        --brand-info: #38bdf8;
+
+        --background: 220 47% 6%;
+        --foreground: 0 0% 100%;
+        --card: 221 39% 11%;
+        --card-foreground: 0 0% 100%;
+        --popover: 222 27% 12%;
+        --popover-foreground: 0 0% 100%;
+        --primary: 221 83% 53%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 222 27% 12%;
+        --secondary-foreground: 0 0% 100%;
+        --muted: 221 39% 11%;
+        --muted-foreground: 215 20% 65%;
+        --accent: 222 27% 16%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 215 28% 17%;
+        --input: 215 28% 17%;
+        --ring: 221 83% 53%;
+        --radius: 0.75rem;
+    }
+
+    .light {
+        --brand-bg: #ffffff;
+        --brand-surface: #f8fafc;
+        --brand-elevated: #f1f5f9;
+        --brand-border: #e2e8f0;
+        --brand-fg: #0f172a;
+        --brand-muted: #64748b;
+        --background: 0 0% 100%;
+        --foreground: 222 47% 11%;
+        --card: 210 40% 98%;
+        --card-foreground: 222 47% 11%;
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --muted-foreground: 215 16% 47%;
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        background-color: var(--brand-bg);
+        color: var(--brand-fg);
+        font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+    }
+
+    ::selection {
+        background: var(--brand-primary);
+        color: #fff;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--brand-primary);
+        outline-offset: 2px;
+    }
+}
+
+@layer utilities {
+    .container-page {
+        @apply mx-auto w-full max-w-[1240px] px-5 sm:px-8;
+    }
+
+    .surface-card {
+        background-color: var(--brand-surface);
+        border: 1px solid var(--brand-border);
+    }
+
+    .grain {
+        background-image: radial-gradient(
+            rgba(148, 163, 184, 0.06) 1px,
+            transparent 1px
+        );
+        background-size: 22px 22px;
+    }
+
+    .glow-primary {
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25),
+            0 20px 60px -20px rgba(37, 99, 235, 0.45);
+    }
+
+    .text-fg {
+        color: var(--brand-fg);
+    }
+
+    .text-muted {
+        color: var(--brand-muted);
+    }
+}
+
+@keyframes cg-float {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+    50% {
+        transform: translate3d(0, -18px, 0);
+    }
+}
+
+.animate-cg-float {
+    animation: cg-float 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    .animate-cg-float,
+    .animate-pulse {
+        animation: none !important;
+    }
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+}

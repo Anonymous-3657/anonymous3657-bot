@@ -1,0 +1,193 @@
+{
+  "project": {
+    "name": "CG STUDENT PORTAL",
+    "tagline": "Study • Earn • Grow",
+    "type": "Production-ready, scalable EdTech Student Platform",
+    "personality": [
+      "Modern",
+      "Premium",
+      "Trustworthy",
+      "Student-friendly",
+      "Fast",
+      "Clean",
+      "Professional",
+      "Technology-focused"
+    ],
+    "inspiration_principles": [
+      "Linear",
+      "Vercel",
+      "Notion",
+      "Stripe",
+      "GitHub",
+      "Coursera",
+      "Apple"
+    ],
+    "target_audience": "Students of Hemchand Yadav Vishwavidyalaya initially, scaling to multiple universities across India."
+  },
+  "theme": {
+    "primary": "dark",
+    "architecture": "dark-first, prepare light mode architecture via CSS variables",
+    "guidelines": "Use true gray/navy surfaces, not pure black. Build elevation with surface steps, not heavy shadows."
+  },
+  "colors": {
+    "tokens": {
+      "Primary": "#2563EB",
+      "Primary Dark": "#1E40AF",
+      "Accent": "#F59E0B",
+      "Secondary Accent": "#6366F1",
+      "Dark BG": "#090E18",
+      "Surface": "#111827",
+      "Elevated Surface": "#161B26",
+      "Border": "#1F2937",
+      "Primary Text": "#FFFFFF",
+      "Secondary Text": "#94A3B8",
+      "Success": "#22C55E",
+      "Warning": "#F59E0B",
+      "Error": "#EF4444",
+      "Info": "#38BDF8"
+    },
+    "rules": [
+      "Strictly adhere to the centralized tokens. Do not randomly introduce additional colors.",
+      "Dark BG (#090E18) is the root application background.",
+      "Use Surface (#111827) for standard cards and Elevated Surface (#161B26) for popovers, modals, and hover states.",
+      "Border (#1F2937) for all dividers, card borders, and input rings (1px solid).",
+      "Reserve Primary (#2563EB) and Accent (#F59E0B) for CTAs, active states, and critical interactions.",
+      "Always ensure proper contrast. Never use transparent backgrounds on elements that scroll over content (e.g., sticky headers or dropdowns). Use a solid Elevated Surface or heavily blurred glassmorphism."
+    ]
+  },
+  "typography": {
+    "fonts": {
+      "headings": "Poppins",
+      "body": "Inter"
+    },
+    "scale": {
+      "Display": "text-5xl sm:text-6xl font-poppins font-bold tracking-tight text-white",
+      "H1": "text-4xl sm:text-5xl font-poppins font-bold tracking-tight text-white",
+      "H2": "text-3xl sm:text-4xl font-poppins font-semibold tracking-tight text-white",
+      "H3": "text-2xl sm:text-3xl font-poppins font-semibold text-white",
+      "H4": "text-xl sm:text-2xl font-poppins font-medium text-white",
+      "Body Large": "text-lg font-inter text-[#94A3B8]",
+      "Body": "text-base font-inter text-[#94A3B8]",
+      "Body Small": "text-sm font-inter text-[#94A3B8]",
+      "Caption": "text-xs font-inter text-[#94A3B8] uppercase tracking-wider",
+      "Button": "text-sm font-poppins font-medium",
+      "Label": "text-sm font-poppins font-medium text-white"
+    },
+    "rules": [
+      "No serif fonts under any circumstances.",
+      "Use Poppins strictly for major headings and important UI labels.",
+      "Use Inter strictly for body text and data-heavy interfaces.",
+      "Use tracking-tight for all Poppins headings."
+    ]
+  },
+  "icons": {
+    "library": "lucide-react",
+    "rules": [
+      "Lucide only. Import icons dynamically if needed, or explicitly.",
+      "No emojis as icons. Never use 🤖, 📚, 🎓, etc., as UI icons.",
+      "Standardize sizes (e.g., w-5 h-5 for inline, w-8 h-8 for featured blocks)."
+    ]
+  },
+  "spacing_and_grids": {
+    "philosophy": "Generous Spacing, Optical Alignment, Clean Grid Systems",
+    "containers": "Padding must be consistent. Use p-6 or p-8 inside cards to avoid edge collision.",
+    "grids": "Use 12-column logic for marketing pages (hero, featured), and dense bento-grids for dashboard/browse views."
+  },
+  "components": {
+    "buttons": "Modern pill-shaped (rounded-full) or soft-rounded (rounded-lg). Primary buttons use #2563EB bg, hover #1E40AF. Accent buttons use #F59E0B.",
+    "inputs": "Search Input with left icon, standard inputs with 1px border (#1F2937), background Surface (#111827), text white, placeholder #94A3B8. Focus ring in #2563EB.",
+    "cards": {
+      "Resource Card": "Displays Title, Subject, Course, Year, University, File type icon, Verified status badge, Premium status badge, Downloads, Views, Upload date. Background Surface (#111827), 1px solid Border (#1F2937). Hover state: translate-y-1, Elevated Surface (#161B26).",
+      "University Card": "Image block at top, name, location, courses count. Clean 1px border. Interactive hover.",
+      "Course Card": "Compact horizontal or vertical block showing Course name, duration, subjects count.",
+      "Stat Card": "Minimal bento-box style. Big number (Poppins), small label (Inter Caption), optional subtle trend graph."
+    },
+    "navigation": {
+      "Navbar": "Sticky top, z-50. Dark BG (#090E18) with subtle bottom border (#1F2937). Brand logo is TEXT-BASED (no image file).",
+      "Bottom Navigation": "Mobile only. Fixed bottom, z-50. Links: Home, Search, Resources, Community, Profile.",
+      "Sidebar": "For deep dashboard views or desktop browse screens if needed."
+    },
+    "feedback": {
+      "Toast": "Use Sonner. Dark mode styled.",
+      "Skeleton": "Subtle pulse on Surface (#111827) blocks.",
+      "Empty/Error States": "Centralized minimal illustrations/icons (Lucide) with clear Poppins headings, Inter descriptive text, and a primary action button. Offline, Unauthorized, Not Found, Server Error."
+    }
+  },
+  "layouts": {
+    "global": {
+      "desktop": "Top Nav + Main Content + Footer",
+      "mobile": "Compact Header + Main Content + Bottom Navigation (No horizontal scroll, 44px touch targets)"
+    },
+    "pages": {
+      "Home": {
+        "sections": [
+          "Navbar (Text Brand, Desktop Links, CTAs)",
+          "Hero: Headline 'One Platform. Every Student.', Subtitle 'Study, discover resources, share knowledge and grow with CG STUDENT PORTAL.' Search Bar ('Search papers, notes, subjects, courses...'), Primary CTA 'Explore Study Materials', Secondary CTA 'Join CG STUDENT PORTAL'. Subtle animated geometric tech background.",
+          "Popular Categories: Grid of quick-access pills or cards.",
+          "Featured University: Spotlight on Hemchand Yadav Vishwavidyalaya and others.",
+          "Latest Resources: Grid of Resource Cards.",
+          "Statistics: 3-4 key platform metrics in Stat Cards.",
+          "How it Works: 3-step linear flow.",
+          "Student Earning Preview: Showcase 'Earn coins, redeem rewards' feature.",
+          "Premium Preview: Showcase AI tools and premium features.",
+          "Bottom CTA: Final conversion block.",
+          "Footer: Platform, Resources, Universities, Support, Company, Legal, Social. Placeholders for About/Contact/Privacy/Terms/Refund/Copyright/DMCA."
+        ]
+      },
+      "Browse Pages": "Standardized container with filters/sidebar on left (desktop), resource/university grid on right. Mobile uses drawer for filters."
+    }
+  },
+  "motion": {
+    "libraries": ["framer-motion"],
+    "specs": {
+      "Page Entrance": "Fade in, slight slide up (y: 20 to 0).",
+      "Card Hover": "Subtle scale up (1.02) or translateY (-4px), border color transition.",
+      "Counters": "framer-motion animate from 0 to target for statistics.",
+      "Scroll Reveal": "Staggered fade-up for list items (Resource Cards, Universities) as they enter viewport.",
+      "Accessibility": "Wrap animations in respects prefers-reduced-motion checks."
+    }
+  },
+  "image_urls": {
+    "universities": [
+      {
+        "url": "https://images.pexels.com/photos/31656148/pexels-photo-31656148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Modern contemporary urban architecture building"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1785190095920-302ea67de2e0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjB1bml2ZXJzaXR5JTIwY2FtcHVzfGVufDB8fHx8MTc4NjUwMzU5OHww&ixlib=rb-4.1.0&q=85",
+        "description": "Modern brick architecture"
+      }
+    ],
+    "students": [
+      {
+        "url": "https://images.unsplash.com/photo-1622151834677-70f982c9adef?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwyfHxzdHVkZW50JTIwc3R1ZHlpbmclMjBsYXB0b3AlMjBkYXJrfGVufDB8fHx8MTc4NjUwMzU5OXww&ixlib=rb-4.1.0&q=85",
+        "description": "Student studying dark laptop"
+      }
+    ],
+    "abstract_backgrounds": [
+      {
+        "url": "https://images.unsplash.com/photo-1638864616275-9f0b291a2eb6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzZ8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGdlb21ldHJpYyUyMHRlY2glMjBkYXJrfGVufDB8fHx8MTc4NjUwMzU5OXww&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract black geometric texture for hero backgrounds"
+      }
+    ]
+  },
+  "accessibility": {
+    "contrast": "Ensure all text passes WCAG AA contrast against backgrounds. The specific tokens provided already map nicely for dark mode contrast.",
+    "touch_targets": "Minimum 44x44px for all mobile interactive elements.",
+    "focus_states": "Visible focus rings on all inputs and buttons. Use Primary color (#2563EB) ring with offset.",
+    "screen_readers": "Provide aria-labels for icon-only buttons (like mobile nav icons)."
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Write components in .js or .jsx (Javascript), NOT .tsx (Typescript).",
+    "Do NOT use HTML-based components for advanced user interactions (dropdown, calendar, toast). Use shadcn/ui components customized via Tailwind.",
+    "Do NOT make generic centered layouts. Use asymmetrical or structured left-aligned grid layouts for a premium SaaS feel.",
+    "DO NOT apply universal transition (e.g., transition: all). Add transitions for specific properties (opacity, transform, background-color) to avoid breaking framer-motion.",
+    "DO NOT center align the root app container (i.e. no .App { text-align: center; } in index.css).",
+    "Never use AI assistant emojis 🤖🧠💡. Only use lucide-react icons.",
+    "Provide installation commands for missing packages (e.g., framer-motion, lucide-react, sonner).",
+    "Every interaction needs a micro-animation (hover state, scale, color shift). Static UI feels dead.",
+    "All interactive and key informational elements MUST include a data-testid attribute in kebab-case representing its role (e.g., data-testid='hero-search-input', data-testid='login-submit-button').",
+    "Ensure Header/Navbar has a solid background (Dark BG #090E18) or heavy backdrop blur. Never leave it completely transparent.",
+    "Respect the exact fixed color tokens and typography font families. Do not override the Primary #2563EB or Dark BG #090E18."
+  ]
+}

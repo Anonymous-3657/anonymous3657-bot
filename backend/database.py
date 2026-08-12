@@ -51,3 +51,9 @@ async def ensure_indexes():
         [("role_id", 1), ("permission_id", 1)], unique=True
     )
     await db.login_attempts.create_index("identifier", unique=True)
+    await db.auth_tokens.create_index([("token_hash", 1), ("purpose", 1)])
+    await db.auth_tokens.create_index([("user_id", 1), ("purpose", 1)])
+    await db.otp_codes.create_index([("user_id", 1), ("purpose", 1)])
+    await db.rate_limits.create_index("key", unique=True)
+    await db.audit_events.create_index([("user_id", 1), ("created_at", -1)])
+    await db.audit_events.create_index("event")

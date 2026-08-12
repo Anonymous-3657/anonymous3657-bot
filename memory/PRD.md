@@ -57,12 +57,37 @@ admin = full catalog + resources + users · moderator = catalog read, resource w
 ### Verified
 52 backend tests passing (25 Step 1 + 21 admin + 6 lockout regression) plus admin UI flows. One bug found and fixed: lockout counter was fragmenting across rotating ingress proxy IPs.
 
+## Implemented — Step 2: Student authentication (2026-06)
+### Provider decision
+No Supabase in this project. The existing bcrypt + JWT httpOnly-cookie system from Step 2a is the configured provider and was **extended**, not duplicated. Emails go through the Emergent-managed Resend integration. Per user choice there is **no Google OAuth** and **no SMS/phone OTP** yet (email OTP only).
+
+### Routes (frontend)
+Public: `/`, `/universities`, `/universities/:slug`, `/courses`, `/courses/:slug`, `/resources`, `/categories`, `/legal/:page`, `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`.
+Authenticated: `/dashboard`, `/profile`. Staff: `/admin/login`, `/admin`, `/admin/:entity`, `/admin/users`.
+
+### API
+`POST /api/auth/register` (role + status are server-assigned), `GET /api/auth/username-available`, `POST /api/auth/login|logout|refresh`, `GET /api/auth/me`, `POST /api/auth/verify-email`, `POST /api/auth/resend-verification`, `POST /api/auth/change-email`, `POST /api/auth/request-otp`, `POST /api/auth/verify-otp`, `POST /api/auth/forgot-password` (enumeration-safe), `POST /api/auth/reset-password`, `POST /api/auth/change-password`, `PUT /api/auth/profile` (field whitelist), `GET /api/auth/audit-events`.
+
+### Database
+New collections: `auth_tokens` (sha256-hashed, single-use), `otp_codes` (hashed, 10 min, 5 attempts), `rate_limits`, `audit_events` — all indexed. `users` extended with university_id, college_id, course_id, semester_or_year, avatar_url, bio, accepted_terms_at, accepted_privacy_at.
+
+### Roles & statuses
+10 roles (student → super_admin) with a permission map and rank ordering; `STAFF_ROLES` gates the whole `/api/admin` router. Statuses: active, pending_verification, suspended, banned, deactivated — only the first two may hold a session.
+
+### Security
+bcrypt hashing, httpOnly + Secure cookies (samesite from APP_ENV), DB-resolved principal on every request, server-side password rules, account lockout (5/15 min), rate limits on register/forgot/resend/OTP request/OTP verify, no account enumeration, single-use hashed tokens, mass-assignment and role-escalation guards, audit logging that never records passwords, OTPs or tokens.
+
+### Verified
+107/107 backend tests (38 auth + 46 step1/admin + 6 lockout + 17 RBAC) plus desktop and 390px mobile browser flows. One bug found and fixed: students could read `/api/admin/overview` because it was gated on a permission students legitimately hold.
+
 ## Backlog
 ### P0
-- Student-facing signup/login (and optional Google login), email verification, password reset.
+- Google OAuth and phone/SMS OTP if the user later wants them.
+- Explicit `CORS_ORIGINS` allowlist for production.
 ### P1
-- Step 3 student dashboard + bookmarks; Step 4 secure uploads, approval workflow, signed downloads.
-- Set an explicit `CORS_ORIGINS` allowlist for production instead of the wildcard.
+- Step 3 dashboard depth: bookmarks, follows, my-downloads, notifications.
+- Step 4 secure uploads, approval queue, signed downloads.
+- `token_version` rotation so sensitive changes invalidate outstanding JWTs.
 ### P2
 - Step 5 admin panel; Step 6 coins/wallet; Step 7 premium/payments; Step 8 community/notifications; Step 9 AI tools; Step 10 production hardening.
 

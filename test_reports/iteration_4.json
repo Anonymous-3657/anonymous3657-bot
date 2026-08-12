@@ -1,0 +1,27 @@
+{
+  "summary": "Verified deployment probe fix and full regression. (1) GET /health on localhost:8001 returns 200 {\"status\":\"ok\"} and performs NO DB call (inspected container_health() — just returns dict). (2) Externally the /health path is served by frontend ingress (React SPA HTML) with 200, which is fine because the failing Kubernetes probe was internal (127.0.0.1 → :8001) and that now returns the JSON body. (3) GET /api/health returns {\"status\":\"ok\",\"database\":\"connected\"} and, per code, falls back to {\"database\":\"unreachable\"} on ping failure instead of raising. (4) Startup hook wraps ensure_indexes()+seed_admin() in try/except; supervisor log shows 'Indexes ensured; admin seed: unchanged' with no tracebacks across 3 recent restarts. (5) auth._secret() returns HTTPException 503 when JWT_SECRET missing (code inspected) — with JWT_SECRET present, login/me/refresh/admin all work as verified by full regression. (6) Full regression PASSED: test_step1_backend.py + test_admin_backend.py = 46/46 in one xdist run; test_lockout_regression.py = 6/6 in a separate serial run. Total 52/52. (7) Public site end-to-end via ingress: homepage loads with hero-search-input, /resources renders 6 resources, /universities and /courses pages present. (8) Admin panel end-to-end: admin login → overview counts visible → categories create/edit/archive round-trip successful → logout redirects to /admin/login. No pageerrors; console 401s are pre-login /api/auth/me probes (expected). DB left pristine: 6 active categories after cleanup.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_step1_backend.py",
+    "/app/backend/tests/test_admin_backend.py",
+    "/app/backend/tests/test_lockout_regression.py",
+    "/app/test_reports/pytest/regression_iter4_main.xml",
+    "/app/test_reports/pytest/regression_iter4_lockout.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Externally, GET /health at the ingress hits the React app (returns index.html with 200), not the FastAPI /health. That is acceptable because the failing K8s probe is a container-local 127.0.0.1:8001 probe and the new @app.get('/health') answers it correctly — but if any external monitor is pointed at ${DOMAIN}/health it will see HTML instead of the JSON status. Document/route accordingly if that matters.",
+    "Deferred from prior iterations (still valid): CORS uses allow_origin_regex='.*' with allow_credentials=True while CORS_ORIGINS='*' — replace with an explicit allowlist before production.",
+    "seed_admin still silently rotates the admin password on every restart when ADMIN_PASSWORD differs; adding an explicit 'admin password rotated from env' log line would make it observable in prod.",
+    "auth.set_auth_cookies hard-codes samesite='none'+secure=True; will break http localhost dev — gate on APP_ENV.",
+    "The unprefixed /health handler is a great addition; consider also adding an unprefixed /ready (readiness) that DOES verify DB connectivity so readiness can gate traffic while liveness stays DB-free."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (52/52)", "frontend": "100% of scoped public + admin smoke"},
+  "test_credentials": "admin@cgstudentportal.in / CgAdmin@2026 (verified).",
+  "seed_data_creation": "Created and cleaned up TEST_CAT_ITER4 category during admin panel round-trip. Final counts verified: 6 active categories. No residual TEST_ records.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Deployment probe fix is complete and verified. /health (unprefixed) → 200 no-DB; /api/health → 200 with DB status field that tolerates ping failure. Full regression harness = 52 tests. Note that pytest.ini has xdist addopts, so test_lockout_regression.py must be run with `-o addopts=''` when invoked separately to avoid concurrent admin-account contention with test_admin_backend.py."
+}

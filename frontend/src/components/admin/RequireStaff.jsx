@@ -3,7 +3,17 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UnauthorizedState } from "@/components/common/StateViews";
 
-const STAFF_ROLES = ["admin", "moderator"];
+// Mirrors STAFF_ROLES in backend/auth.py — the server is the real gate.
+const STAFF_ROLES = [
+  "moderator",
+  "content_reviewer",
+  "support",
+  "finance_manager",
+  "university_manager",
+  "college_manager",
+  "admin",
+  "super_admin",
+];
 
 export const RequireStaff = ({ children }) => {
   const { user } = useAuth();

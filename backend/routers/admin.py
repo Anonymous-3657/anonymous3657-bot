@@ -12,11 +12,12 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pymongo.errors import DuplicateKeyError
 
 from auth import (ROLE_PERMISSIONS, ROLE_RANK, get_current_user, hash_password,
-                  public_user, require_permission)
+                  public_user, require_permission, require_staff)
 from database import db
 from routers.catalog import oid
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+# Every admin endpoint sits behind the staff gate as well as its own permission.
+router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_staff)])
 
 BOOL_FIELDS = {"is_premium", "is_verified", "is_demo"}
 INT_FIELDS = {"year", "file_size", "views", "downloads"}
@@ -217,7 +218,7 @@ async def delete_entity(entity: str, item_id: str, user: dict = Depends(get_curr
 
 
 @router.get("/overview")
-async def overview(user: dict = Depends(require_permission("catalog:read"))):
+async def overview(user: dict = Depends(require_staff)):
     active = {"status": "active", "is_deleted": {"$ne": True}}
     counts = {}
     for name in ("states", "universities", "colleges", "courses", "subjects",

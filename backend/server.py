@@ -21,6 +21,13 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="CG Student Portal API", version="0.2.0")
 
+
+# Kubernetes probes call /health without the /api prefix, so expose it at both paths.
+@app.get("/health")
+async def container_health():
+    return {"status": "ok"}
+
+
 api_router = APIRouter(prefix="/api")
 
 
@@ -75,9 +82,14 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 @app.on_event("startup")
 async def on_startup():
-    await ensure_indexes()
-    result = await seed_admin()
-    logger.info("Indexes ensured; admin seed: %s", result)
+    """Never block startup: a slow or unreachable Atlas cluster must not stop the
+    container from answering health probes."""
+    try:
+        await ensure_indexes()
+        result = await seed_admin()
+        logger.info("Indexes ensured; admin seed: %s", result)
+    except Exception:
+        logger.exception("Startup bootstrap failed; API will still serve requests")
 
 
 @app.on_event("shutdown")

@@ -8,9 +8,34 @@ import os
 import uuid
 from datetime import datetime, timezone
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+except ModuleNotFoundError:  # pragma: no cover - compatibility fallback
+    class UserMessage:
+        def __init__(self, text: str):
+            self.text = text
+
+    class LlmChat:
+        def __init__(self, api_key: str, session_id: str, system_message: str):
+            self.api_key = api_key
+            self.session_id = session_id
+            self.system_message = system_message
+            self.provider = None
+            self.model = None
+
+        def with_model(self, provider: str, name: str):
+            self.provider = provider
+            self.model = name
+            return self
+
+        async def send_message(self, message: UserMessage) -> str:
+            raise RuntimeError(
+                "The Emergent LLM client is unavailable in this environment; "
+                "install the compatible integration package or configure an alternative provider."
+            )
 
 from auth import get_current_user
 from database import db

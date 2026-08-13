@@ -28,6 +28,8 @@ export const api = {
   categories: () => get("/categories"),
   resources: (params) => get("/resources", params),
   resource: (slug) => get(`/resources/${slug}`),
+  syllabus: (params) => get("/syllabus", params),
+  syllabusDetail: (id) => get(`/syllabus/${id}`),
 };
 
 export const studentApi = {
@@ -66,6 +68,33 @@ export const aiApi = {
   deleteSession: (sessionId) => http.delete(`/ai/sessions/${sessionId}`).then((r) => r.data),
 };
 
+export const syllabusApi = {
+  list: (params) => get("/admin/syllabus", params),
+  stats: () => get("/admin/syllabus/stats"),
+  create: (formData) =>
+    http.post("/admin/syllabus", formData, { timeout: 180000 }).then((r) => r.data),
+  update: (id, formData) =>
+    http.put(`/admin/syllabus/${id}`, formData, { timeout: 180000 }).then((r) => r.data),
+  delete: (id) => http.delete(`/admin/syllabus/${id}`).then((r) => r.data),
+  publish: (id) => http.post(`/admin/syllabus/${id}/publish`).then((r) => r.data),
+  unpublish: (id) => http.post(`/admin/syllabus/${id}/unpublish`).then((r) => r.data),
+  preview: (id) => `${API}/syllabus/${id}/file`,
+  download: (id) => `${API}/syllabus/${id}/file?download=1`,
+};
+
+export const teacherContentApi = {
+  adminList: (params) => get(`/admin/teacher-content`, params),
+  createTeacher: (formData) => http.post(`/admin/teacher-content/teachers`, formData).then((r) => r.data),
+  createContent: (formData) => http.post(`/admin/teacher-content`, formData, { timeout: 180000 }).then((r) => r.data),
+  updateContent: (id, formData) => http.put(`/admin/teacher-content/${id}`, formData, { timeout: 180000 }).then((r) => r.data),
+  publish: (id) => http.post(`/admin/teacher-content/${id}/publish`).then((r) => r.data),
+  unpublish: (id) => http.post(`/admin/teacher-content/${id}/unpublish`).then((r) => r.data),
+  delete: (id) => http.delete(`/admin/teacher-content/${id}`).then((r) => r.data),
+  list: (params) => get(`/teacher-content`, params),
+  detail: (id) => get(`/teacher-content/${id}`),
+  teacherProfile: (id) => get(`/teacher-content/teachers/${id}`),
+};
+
 export const adminApi = {
   overview: () => get("/admin/overview"),
   list: (entity, params) => get(`/admin/entities/${entity}`, params),
@@ -81,4 +110,5 @@ export const adminApi = {
   approvePdf: (id) => http.post(`/admin/pdfs/${id}/approve`).then((r) => r.data),
   rejectPdf: (id, reason) => http.post(`/admin/pdfs/${id}/reject`, { reason }).then((r) => r.data),
   deletePdf: (id) => http.delete(`/admin/pdfs/${id}`).then((r) => r.data),
+  syllabus: syllabusApi,
 };

@@ -29,18 +29,19 @@ export default function UploadPdf() {
     const picked = e.target.files?.[0];
     setError("");
     if (!picked) return setFile(null);
-    if (picked.type !== "application/pdf" || !picked.name.toLowerCase().endsWith(".pdf")) {
+    const allowed = /\.(pdf|docx?|pptx?|xlsx?|csv|txt|md|jpe?g|png|gif|webp|svg|mp4|webm|ogg|mov|avi|mkv)$/i;
+    if (!picked.name || !allowed.test(picked.name)) {
       setFile(null);
-      setError("Only PDF files can be uploaded.");
+      setError("Only documents, images, and videos are supported.");
       return;
     }
     if (picked.size > MAX_BYTES) {
       setFile(null);
-      setError("PDF must be 25 MB or smaller.");
+      setError("File must be 100 MB or smaller.");
       return;
     }
     setFile(picked);
-    if (!form.title) setForm((f) => ({ ...f, title: picked.name.replace(/\.pdf$/i, "") }));
+    if (!form.title) setForm((f) => ({ ...f, title: picked.name.replace(/\.[^.]+$/i, "") }));
   };
 
   const onSubmit = async (e) => {
@@ -97,7 +98,7 @@ export default function UploadPdf() {
         <form onSubmit={onSubmit} className="space-y-6" data-testid="upload-pdf-form">
           <div>
             <label htmlFor="upload-file" className="font-heading text-sm font-medium text-fg">
-              PDF file <span className="text-brand-error">*</span>
+              File or media upload <span className="text-brand-error">*</span>
             </label>
             <label
               htmlFor="upload-file"
@@ -105,19 +106,19 @@ export default function UploadPdf() {
             >
               <FileUp className="h-7 w-7 text-brand-primary" aria-hidden="true" />
               <span className="font-heading text-sm text-fg">
-                {file ? file.name : "Tap to choose a PDF"}
+                {file ? file.name : "Tap to choose a file"}
               </span>
               <span className="text-xs text-muted">
                 {file
                   ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
-                  : "PDF only · up to 25 MB"}
+                  : "Documents, images, and videos · up to 100 MB"}
               </span>
             </label>
             <input
               id="upload-file"
               data-testid="upload-file-input"
               type="file"
-              accept="application/pdf,.pdf"
+              accept="application/pdf,.pdf,application/msword,.doc,.docx,application/vnd.ms-powerpoint,.ppt,application/vnd.openxmlformats-officedocument.presentationml.presentation,.pptx,application/vnd.ms-excel,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx,text/plain,.txt,text/markdown,.md,image/*,video/*"
               onChange={pickFile}
               className="sr-only"
             />

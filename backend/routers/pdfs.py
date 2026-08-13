@@ -1,13 +1,13 @@
-"""Student PDF uploads with a strict admin approval workflow.
+"""Student file uploads with a strict admin approval workflow.
 
-Files live in private object storage. Nothing is publicly readable: every byte is
-served by this router after an authorization check, and a student can never
-approve or publish their own document.
+Files live in private object storage. Every read goes through the API after an
+authorization check, and a student can never approve or publish their own upload.
 """
 import hashlib
 import logging
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 from fastapi import (APIRouter, Depends, File, Form, HTTPException, Query,
@@ -27,8 +27,49 @@ router = APIRouter(prefix="/pdfs", tags=["pdfs"])
 admin_router = APIRouter(prefix="/admin/pdfs", tags=["pdfs-admin"],
                          dependencies=[Depends(require_staff)])
 
-MAX_BYTES = 25 * 1024 * 1024
+MAX_BYTES = 100 * 1024 * 1024
 PENDING, APPROVED, REJECTED = "pending", "approved", "rejected"
+
+ALLOWED_EXTENSIONS = {
+    "pdf", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "csv", "txt",
+    "md", "jpg", "jpeg", "png", "gif", "webp", "svg", "mp4", "webm",
+    "ogg", "mov", "avi", "mkv",
+}
+ALLOWED_MIME_TYPES = {
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/plain",
+    "text/markdown",
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
+    "video/mp4",
+    "video/webm",
+    "video/ogg",
+    "video/quicktime",
+    "video/x-msvideo",
+    "video/x-matroska",
+}
+EXTENSION_BY_MIME = {
+    "application/pdf": "pdf",
+    "application/msword": "doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/vnd.ms-powerpoint": "ppt",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+    "application/vnd.ms-excel": "xls",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+    "text/plain": "txt",
+    "text/markdown": "md",
+    "image/svg+xml": "svg",
+    "video/quicktime": "mov",
+}
 
 
 def now_iso() -> str:
@@ -43,6 +84,7 @@ def public_doc(doc: dict, include_reviewer: bool = False) -> dict:
         "file_name": doc.get("file_name"),
         "file_size": doc.get("file_size"),
         "mime_type": doc.get("mime_type"),
+        "file_type": doc.get("file_type"),
         "uploaded_by": doc.get("uploaded_by"),
         "uploaded_at": doc.get("uploaded_at"),
         "status": doc.get("status"),
@@ -99,18 +141,25 @@ async def upload_pdf(
 
     title = (title or "").strip()
     if len(title) < 3:
-        raise HTTPException(status_code=400, detail="Give your document a clear title")
-    if not (file.filename or "").lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
-    if (file.content_type or "").lower() not in ("application/pdf", "application/x-pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+        raise HTTPException(status_code=400, detail="Give your upload a clear title")
+
+    filename = (file.filename or "").strip()
+    if not filename or "." not in filename:
+        raise HTTPException(status_code=400, detail="A valid file is required")
+
+    content_type = (file.content_type or "").lower()
+    extension = Path(filename).suffix.lower().lstrip(".")
+    if extension not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail="Unsupported file type")
+    if content_type and content_type not in ALLOWED_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Unsupported file type")
 
     data = await file.read()
     if not data:
         raise HTTPException(status_code=400, detail="That file is empty")
     if len(data) > MAX_BYTES:
-        raise HTTPException(status_code=413, detail="PDF must be 25 MB or smaller")
-    if not data[:5].startswith(b"%PDF"):
+        raise HTTPException(status_code=413, detail="File must be 100 MB or smaller")
+    if content_type == "application/pdf" and not data[:5].startswith(b"%PDF"):
         raise HTTPException(status_code=400, detail="This file is not a valid PDF")
 
     checksum = hashlib.sha256(data).hexdigest()
@@ -122,21 +171,24 @@ async def upload_pdf(
                             detail="You have already uploaded this exact file")
 
     file_id = uuid.uuid4().hex
-    path = build_path(user_id, file_id)
+    path = build_path(user_id, file_id, extension)
     try:
-        result = put_object(path, data, "application/pdf")
+        result = put_object(path, data, content_type or "application/octet-stream")
     except Exception:
-        logger.exception("PDF upload to object storage failed")
+        logger.exception("File upload to object storage failed")
         raise HTTPException(status_code=502,
                             detail="Upload failed on the server. Please try again.")
 
     doc = {
+        "file_type": "image" if content_type.startswith("image/") else
+                     "video" if content_type.startswith("video/") else
+                     "pdf" if content_type == "application/pdf" else "file",
+        "mime_type": content_type or "application/octet-stream",
         "title": title,
         "description": (description or "").strip() or None,
         "file_name": file.filename,
         "file_path": result.get("path", path),
         "file_size": len(data),
-        "mime_type": "application/pdf",
         "checksum": checksum,
         "uploaded_by": user_id,
         "uploader_name": user.get("name"),

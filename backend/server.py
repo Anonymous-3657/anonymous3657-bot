@@ -12,7 +12,8 @@ from starlette.middleware.cors import CORSMiddleware  # noqa: E402
 from auth import seed_admin  # noqa: E402
 from database import close_client, ensure_indexes  # noqa: E402
 from routers import (admin, ai, auth_routes, catalog, exams, meta, pdfs,  # noqa: E402
-                     resources, student)
+                     resources, student, syllabus)
+from routers import teacher_content
 from storage import init_storage  # noqa: E402
 
 logging.basicConfig(
@@ -41,13 +42,17 @@ async def root():
 api_router.include_router(meta.router)
 api_router.include_router(catalog.router)
 api_router.include_router(resources.router)
+api_router.include_router(syllabus.router)
 api_router.include_router(auth_routes.router)
 api_router.include_router(student.router)
 api_router.include_router(ai.router)
 api_router.include_router(exams.router)
 api_router.include_router(pdfs.router)
+api_router.include_router(syllabus.admin_router)
 api_router.include_router(pdfs.admin_router)
 api_router.include_router(admin.router)
+api_router.include_router(teacher_content.router)
+api_router.include_router(teacher_content.admin_router)
 app.include_router(api_router)
 
 # Credentialed requests cannot use a literal "*" origin, so reflect the caller's

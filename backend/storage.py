@@ -34,9 +34,10 @@ def init_storage(force: bool = False) -> str:
     return _storage_key
 
 
-def build_path(user_id: str, file_id: str) -> str:
+def build_path(user_id: str, file_id: str, extension: str = "pdf") -> str:
     safe_user = re.sub(r"[^a-zA-Z0-9]", "", user_id)
-    return f"{BUCKET_PREFIX}/{safe_user}/{file_id}.pdf"
+    ext = extension.lower().lstrip(".") or "bin"
+    return f"{BUCKET_PREFIX}/{safe_user}/{file_id}.{ext}"
 
 
 def put_object(path: str, data: bytes, content_type: str = "application/pdf") -> dict:

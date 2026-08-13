@@ -3,7 +3,7 @@ import asyncio
 
 from database import db, ensure_indexes
 from models import (Category, College, Course, Permission, Resource, Role,
-                    State, Subject, University)
+                    State, Subject, University, Teacher, TeacherContent)
 
 PERMISSIONS = [
     ("resource.view", "View resources"),
@@ -53,6 +53,55 @@ async def run():
             official_result_url="https://durguniversity.ac.in/results",
             official_notice_url="https://durguniversity.ac.in/notices",
             banner_url="https://images.pexels.com/photos/31656148/pexels-photo-31656148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+            is_demo=True,
+        ),
+    )
+
+    # Additional universities seeded following the same pattern as Durg
+    prsu_id = await upsert(
+        db.universities, {"slug": "pt-ravishankar-shukla-university"},
+        University(
+            state_id=state_id,
+            name="Pt. Ravishankar Shukla University",
+            short_name="Raipur University",
+            slug="pt-ravishankar-shukla-university",
+            description="State university headquartered in Raipur (PRSU), offering undergraduate and postgraduate programs across multiple disciplines.",
+            official_website="https://prsu.ac.in",
+            official_result_url="https://prsu.ac.in/results",
+            official_notice_url="https://prsu.ac.in/notices",
+            banner_url="https://images.pexels.com/photos/356043/pexels-photo-356043.jpeg",
+            is_demo=True,
+        ),
+    )
+
+    snpv_id = await upsert(
+        db.universities, {"slug": "shaheed-nandkumar-patel-vishwavidyalaya"},
+        University(
+            state_id=state_id,
+            name="Shaheed Nandkumar Patel Vishwavidyalaya",
+            short_name="Raigarh University",
+            slug="shaheed-nandkumar-patel-vishwavidyalaya",
+            description="Regional university serving the Raigarh area (SNPV), with a focus on science and technology courses.",
+            official_website="https://snpv.ac.in",
+            official_result_url="https://snpv.ac.in/results",
+            official_notice_url="https://snpv.ac.in/notices",
+            banner_url="https://images.pexels.com/photos/4145159/pexels-photo-4145159.jpeg",
+            is_demo=True,
+        ),
+    )
+
+    bastar_id = await upsert(
+        db.universities, {"slug": "bastar-university-shaheed-mahendra-karma"},
+        University(
+            state_id=state_id,
+            name="Bastar University / Shaheed Mahendra Karma Vishwavidyalaya",
+            short_name="Bastar University",
+            slug="bastar-university-shaheed-mahendra-karma",
+            description="Bastar region university (SMKV) providing regional higher-education access and affiliated colleges support.",
+            official_website="https://bastaruniversity.ac.in",
+            official_result_url="https://bastaruniversity.ac.in/results",
+            official_notice_url="https://bastaruniversity.ac.in/notices",
+            banner_url="https://images.pexels.com/photos/356043/pexels-photo-356043.jpeg",
             is_demo=True,
         ),
     )
@@ -140,6 +189,142 @@ async def run():
                 views=views, downloads=downloads, is_demo=True,
             ),
         )
+
+    # Seed small sample courses, subjects and a demo resource for PRSU
+    prsu_courses = {}
+    for name, short, slug in [
+        ("Bachelor of Science", "BSc", "prsu-bsc"),
+        ("Master of Science", "MSc", "prsu-msc"),
+    ]:
+        prsu_courses[short] = await upsert(
+            db.courses, {"slug": slug},
+            Course(university_id=prsu_id, name=name, short_name=short, slug=slug,
+                   course_type="UG/PG", duration="2-3 Years", is_demo=True),
+        )
+
+    prsu_subjects = {}
+    for course_key, name, code, sem in [
+        ("BSc", "Physics", "PRSU-PHY-101", "Semester 1"),
+        ("BSc", "Chemistry", "PRSU-CHE-101", "Semester 1"),
+    ]:
+        prsu_subjects[code] = await upsert(
+            db.subjects, {"course_id": prsu_courses[course_key], "code": code},
+            Subject(course_id=prsu_courses[course_key], name=name, code=code,
+                    semester_or_year=sem, is_demo=True),
+        )
+
+    await upsert(
+        db.resources, {"slug": "prsu-sample-syllabus-2025"},
+        Resource(
+            university_id=prsu_id, college_id=None,
+            course_id=prsu_courses.get("BSc"), subject_id=prsu_subjects.get("PRSU-PHY-101"),
+            category_id=categories.get("syllabus"), title="PRSU BSc Physics Syllabus 2025",
+            slug="prsu-sample-syllabus-2025",
+            description="Sample syllabus for PRSU seeded for demo.", file_type="pdf",
+            file_size=512_000, year=2025, is_verified=True, is_demo=True,
+        ),
+    )
+
+    # Seed small sample courses, subjects and a demo resource for SNPV
+    snpv_courses = {}
+    for name, short, slug in [
+        ("Bachelor of Science", "BSc", "snpv-bsc"),
+        ("Diploma in Engineering", "DE", "snpv-de"),
+    ]:
+        snpv_courses[short] = await upsert(
+            db.courses, {"slug": slug},
+            Course(university_id=snpv_id, name=name, short_name=short, slug=slug,
+                   course_type="UG/PG", duration="2-4 Years", is_demo=True),
+        )
+
+    snpv_subjects = {}
+    for course_key, name, code, sem in [
+        ("BSc", "Mathematics", "SNPV-MAT-101", "Semester 1"),
+        ("DE", "Engineering Basics", "SNPV-DE-101", "Year 1"),
+    ]:
+        snpv_subjects[code] = await upsert(
+            db.subjects, {"course_id": snpv_courses[course_key], "code": code},
+            Subject(course_id=snpv_courses[course_key], name=name, code=code,
+                    semester_or_year=sem, is_demo=True),
+        )
+
+    await upsert(
+        db.resources, {"slug": "snpv-sample-syllabus-2025"},
+        Resource(
+            university_id=snpv_id, college_id=None,
+            course_id=snpv_courses.get("BSc"), subject_id=snpv_subjects.get("SNPV-MAT-101"),
+            category_id=categories.get("syllabus"), title="SNPV BSc Mathematics Syllabus 2025",
+            slug="snpv-sample-syllabus-2025",
+            description="Sample syllabus for SNPV seeded for demo.", file_type="pdf",
+            file_size=420_000, year=2025, is_verified=True, is_demo=True,
+        ),
+    )
+
+    # Seed small sample courses, subjects and a demo resource for Bastar University
+    bastar_courses = {}
+    for name, short, slug in [
+        ("Bachelor of Arts", "BA", "bastar-ba"),
+        ("Master of Arts", "MA", "bastar-ma"),
+    ]:
+        bastar_courses[short] = await upsert(
+            db.courses, {"slug": slug},
+            Course(university_id=bastar_id, name=name, short_name=short, slug=slug,
+                   course_type="UG/PG", duration="2-3 Years", is_demo=True),
+        )
+
+    bastar_subjects = {}
+    for course_key, name, code, sem in [
+        ("BA", "History", "BA-HIS-101", "Semester 1"),
+        ("MA", "Political Science", "MA-PS-501", "Semester 1"),
+    ]:
+        bastar_subjects[code] = await upsert(
+            db.subjects, {"course_id": bastar_courses[course_key], "code": code},
+            Subject(course_id=bastar_courses[course_key], name=name, code=code,
+                    semester_or_year=sem, is_demo=True),
+        )
+
+    await upsert(
+        db.resources, {"slug": "bastar-sample-syllabus-2025"},
+        Resource(
+            university_id=bastar_id, college_id=None,
+            course_id=bastar_courses.get("BA"), subject_id=bastar_subjects.get("BA-HIS-101"),
+            category_id=categories.get("syllabus"), title="Bastar BA History Syllabus 2025",
+            slug="bastar-sample-syllabus-2025",
+            description="Sample syllabus for Bastar University seeded for demo.", file_type="pdf",
+            file_size=380_000, year=2025, is_verified=True, is_demo=True,
+        ),
+    )
+
+    # Seed demo teachers and contents for the new universities
+    # PRSU teacher
+    prsu_teacher_id = await upsert(
+        db.teachers, {"name": "Dr. A. K. Sharma", "institution": "PRSU Science College"},
+        Teacher(name="Dr. A. K. Sharma", designation="Professor", institution="PRSU Science College", university_id=prsu_id, bio="Physics faculty with research interests in condensed matter.", is_demo=True),
+    )
+    # SNPV teacher
+    snpv_teacher_id = await upsert(
+        db.teachers, {"name": "Dr. S. Verma", "institution": "SNPV Institute"},
+        Teacher(name="Dr. S. Verma", designation="Associate Professor", institution="SNPV Institute", university_id=snpv_id, bio="Mathematics faculty focusing on algebra and topology.", is_demo=True),
+    )
+    # Bastar teacher
+    bastar_teacher_id = await upsert(
+        db.teachers, {"name": "Ms. L. K. Patel", "institution": "Bastar Arts College"},
+        Teacher(name="Ms. L. K. Patel", designation="Lecturer", institution="Bastar Arts College", university_id=bastar_id, bio="History lecturer and regional studies author.", is_demo=True),
+    )
+
+    # Seed a sample content item for each teacher
+    await upsert(
+        db.teacher_content, {"title": "Introduction to Quantum Mechanics - PRSU"},
+        TeacherContent(teacher_id=prsu_teacher_id, content_type="article", title="Introduction to Quantum Mechanics - PRSU", excerpt="A gentle introduction to quantum concepts.", content_html="<p>This is a demo article.</p>", tags=["physics","quantum"], featured=True, status="published", published_at=2025, is_demo=True),
+    )
+    await upsert(
+        db.teacher_content, {"title": "Mathematics: Number Theory Basics - SNPV"},
+        TeacherContent(teacher_id=snpv_teacher_id, content_type="educational", title="Mathematics: Number Theory Basics - SNPV", excerpt="Basic number theory for undergraduates.", content_html="<p>Demo notes.</p>", tags=["math","number-theory"], featured=False, status="published", published_at=2025, is_demo=True),
+    )
+    await upsert(
+        db.teacher_content, {"title": "History of Bastar Region - Bastar"},
+        TeacherContent(teacher_id=bastar_teacher_id, content_type="story", title="History of Bastar Region - Bastar", excerpt="An overview of Bastar's cultural history.", content_html="<p>Demo story.</p>", tags=["history"], featured=False, status="published", published_at=2025, is_demo=True),
+    )
 
     print("Seed complete (demo data).")
 

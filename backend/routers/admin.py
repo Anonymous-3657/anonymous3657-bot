@@ -77,9 +77,18 @@ SCHEMAS = {
         "required": ["title"],
         "slug_from": "title",
     },
+    "syllabus": {
+        "collection": "syllabus",
+        "fields": ["university_id", "course_id", "subject_id", "title", "slug",
+                   "semester_or_year", "year", "description", "file_url",
+                   "preview_url", "thumbnail_url", "file_size", "file_type",
+                   "is_verified", "status"],
+        "required": ["title", "university_id", "course_id"],
+        "slug_from": "title",
+    },
 }
 
-PERMISSION_FOR = {"resources": "resource", "default": "catalog"}
+PERMISSION_FOR = {"resources": "resource", "syllabus": "resource", "default": "catalog"}
 
 
 def slugify(value: str) -> str:

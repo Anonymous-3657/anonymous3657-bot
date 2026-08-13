@@ -21,18 +21,21 @@ ROLE_PERMISSIONS = {
     "super_admin": {
         "catalog:read", "catalog:write", "catalog:delete",
         "resource:read", "resource:write", "resource:delete", "resource:approve",
+        "syllabus:read", "syllabus:write", "syllabus:delete", "syllabus:publish",
         "user:read", "user:write", "user:delete",
         "finance:read", "finance:write", "support:read", "system:manage",
     },
     "admin": {
         "catalog:read", "catalog:write", "catalog:delete",
         "resource:read", "resource:write", "resource:delete", "resource:approve",
+        "syllabus:read", "syllabus:write", "syllabus:delete", "syllabus:publish",
         "user:read", "user:write", "user:delete",
     },
     "moderator": {
         "catalog:read", "resource:read", "resource:write", "resource:approve",
+        "syllabus:read", "syllabus:write", "syllabus:publish",
     },
-    "content_reviewer": {"catalog:read", "resource:read", "resource:approve"},
+    "content_reviewer": {"catalog:read", "resource:read", "resource:approve", "syllabus:read"},
     "university_manager": {"catalog:read", "catalog:write", "resource:read"},
     "college_manager": {"catalog:read", "resource:read"},
     "finance_manager": {"catalog:read", "finance:read", "finance:write"},

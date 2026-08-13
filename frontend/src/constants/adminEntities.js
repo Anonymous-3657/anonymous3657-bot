@@ -113,6 +113,29 @@ export const ADMIN_ENTITIES = {
     ],
     note: "File uploads arrive in a later step — these records describe the resource only.",
   },
+  syllabus: {
+    label: "Syllabus",
+    icon: "BookOpenCheck",
+    titleField: "title",
+    columns: ["title", "semester_or_year", "year", "file_type", "status"],
+    fields: [
+      { name: "title", label: "Title", required: true },
+      { name: "university_id", label: "University", type: "ref", ref: "universities", required: true },
+      { name: "course_id", label: "Course", type: "ref", ref: "courses", required: true },
+      { name: "subject_id", label: "Subject", type: "ref", ref: "subjects" },
+      { name: "semester_or_year", label: "Semester / Year", hint: "e.g. Semester 3" },
+      { name: "year", label: "Academic year", type: "number" },
+      { name: "slug", label: "Slug" },
+      { name: "file_url", label: "File URL" },
+      { name: "preview_url", label: "Preview URL" },
+      { name: "thumbnail_url", label: "Thumbnail URL" },
+      { name: "file_type", label: "File type", type: "select", options: ["pdf", "doc", "image", "video"] },
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "is_verified", label: "Verified", type: "boolean" },
+      { name: "status", label: "Status", type: "select", options: ["active", "inactive"] },
+    ],
+    note: "Add syllabus files and linked study plans for each course and subject.",
+  },
 };
 
 export const ADMIN_NAV = [

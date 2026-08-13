@@ -57,6 +57,13 @@ async def ensure_indexes():
     await db.auth_tokens.create_index([("user_id", 1), ("purpose", 1)])
     await db.otp_codes.create_index([("user_id", 1), ("purpose", 1)])
     await db.rate_limits.create_index("key", unique=True)
+    await db.syllabus.create_index([
+        ("category", 1), ("course", 1), ("year", 1), ("semester", 1),
+        ("subject_name", 1), ("academic_session", 1), ("status", 1)
+    ])
+    await db.syllabus.create_index("status")
+    await db.syllabus.create_index("course")
+    await db.syllabus.create_index("subject_name")
     await db.audit_events.create_index([("user_id", 1), ("created_at", -1)])
     await db.audit_events.create_index("event")
     await db.bookmarks.create_index([("user_id", 1), ("resource_id", 1)], unique=True)
@@ -70,3 +77,5 @@ async def ensure_indexes():
     await db.pdf_documents.create_index("college_code")
     await db.exam_schedules.create_index([("course_id", 1), ("semester", 1), ("session", 1)])
     await db.exam_schedules.create_index("start_date")
+    await db.teachers.create_index([("name", "text"), ("institution", 1)])
+    await db.teacher_content.create_index([("title", "text"), ("tags", 1), ("content_type", 1)])

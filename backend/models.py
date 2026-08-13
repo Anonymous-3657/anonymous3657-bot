@@ -133,6 +133,31 @@ class Resource(Timestamped):
     is_demo: bool = False
 
 
+# ---------- Teacher content models ----------
+class Teacher(Timestamped):
+    name: str
+    photo_url: Optional[str] = None
+    designation: Optional[str] = None
+    institution: Optional[str] = None
+    university_id: Optional[PyObjectId] = None
+    bio: Optional[str] = None
+    is_demo: bool = False
+
+
+class TeacherContent(Timestamped):
+    teacher_id: Optional[PyObjectId] = None
+    content_type: str = "article"  # article, story, poem, song, educational, other
+    title: str
+    excerpt: Optional[str] = None
+    content_html: Optional[str] = None
+    cover_image_url: Optional[str] = None
+    image_urls: Optional[list] = None
+    tags: Optional[list] = None
+    featured: bool = False
+    published_at: Optional[str] = None
+    is_demo: bool = False
+
+
 # ---------- Identity foundation (auth arrives in Step 2) ----------
 class Role(BaseDocument):
     name: str

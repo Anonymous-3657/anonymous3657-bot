@@ -27,9 +27,15 @@ const Bookmarks = lazy(() => import("@/pages/Bookmarks"));
 const StudyBuddy = lazy(() => import("@/pages/StudyBuddy"));
 const UploadPdf = lazy(() => import("@/pages/uploads/UploadPdf"));
 const MyUploads = lazy(() => import("@/pages/uploads/MyUploads"));
+const SyllabusPage = lazy(() => import("@/pages/Syllabus"));
 
 const AdminPdfs = lazy(() => import("@/pages/admin/AdminPdfs"));
 const AdminColleges = lazy(() => import("@/pages/admin/AdminColleges"));
+const AdminSyllabus = lazy(() => import("@/pages/admin/AdminSyllabus"));
+const AdminTeacherContent = lazy(() => import("@/pages/admin/AdminTeacherContent"));
+const TeacherLanding = lazy(() => import("@/pages/teacher-content/TeacherLanding"));
+const TeacherDetail = lazy(() => import("@/pages/teacher-content/TeacherDetail"));
+const TeacherProfile = lazy(() => import("@/pages/teacher-content/TeacherProfile"));
 
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
@@ -54,6 +60,7 @@ export default function App() {
             <Route path="/universities/:slug" element={<UniversityDetail />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:slug" element={<CourseDetail />} />
+             <Route path="/syllabus" element={<SyllabusPage />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/legal/:page" element={<LegalPage />} />
@@ -131,6 +138,34 @@ export default function App() {
               element={
                 <RequireStaff>
                   <AdminColleges />
+                </RequireStaff>
+              }
+            />
+              <Route
+                path="/admin/teacher-content"
+                element={
+                  <RequireStaff>
+                    <AdminTeacherContent />
+                  </RequireStaff>
+                }
+              />
+              <Route
+                path="/teacher-content"
+                element={<TeacherLanding />}
+              />
+              <Route
+                path="/teacher-content/:id"
+                element={<TeacherDetail />}
+              />
+              <Route
+                path="/teacher/:id"
+                element={<TeacherProfile />}
+              />
+            <Route
+              path="/admin/syllabus"
+              element={
+                <RequireStaff>
+                  <AdminSyllabus />
                 </RequireStaff>
               }
             />

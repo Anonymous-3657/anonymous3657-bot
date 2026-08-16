@@ -29,10 +29,12 @@ export default function UploadPdf() {
     const picked = e.target.files?.[0];
     setError("");
     if (!picked) return setFile(null);
-    const allowed = /\.(pdf|docx?|pptx?|xlsx?|csv|txt|md|jpe?g|png|gif|webp|svg|mp4|webm|ogg|mov|avi|mkv)$/i;
-    if (!picked.name || !allowed.test(picked.name)) {
+
+    const isPdfByName = /\.pdf$/i.test(picked.name || "");
+    const isPdfByType = picked.type === "application/pdf";
+    if (!picked.name || (!isPdfByName && !isPdfByType)) {
       setFile(null);
-      setError("Only documents, images, and videos are supported.");
+      setError("Only PDF files are supported for upload.");
       return;
     }
     if (picked.size > MAX_BYTES) {
@@ -49,6 +51,9 @@ export default function UploadPdf() {
     if (busy) return;
     setError("");
     if (!file) return setError("Choose a PDF file to upload.");
+    if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name || "")) {
+      return setError("Only PDF files are supported.");
+    }
     if (form.title.trim().length < 3) return setError("Give your document a clear title.");
     if (!form.subject.trim() || !form.semester.trim())
       return setError("Subject and semester are required.");
@@ -111,14 +116,14 @@ export default function UploadPdf() {
               <span className="text-xs text-muted">
                 {file
                   ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
-                  : "Documents, images, and videos · up to 100 MB"}
+                  : "PDF only · up to 100 MB"}
               </span>
             </label>
             <input
               id="upload-file"
               data-testid="upload-file-input"
               type="file"
-              accept="application/pdf,.pdf,application/msword,.doc,.docx,application/vnd.ms-powerpoint,.ppt,application/vnd.openxmlformats-officedocument.presentationml.presentation,.pptx,application/vnd.ms-excel,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx,text/plain,.txt,text/markdown,.md,image/*,video/*"
+              accept="application/pdf,.pdf"
               onChange={pickFile}
               className="sr-only"
             />

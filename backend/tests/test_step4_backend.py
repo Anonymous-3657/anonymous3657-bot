@@ -7,7 +7,16 @@ import sys
 
 import requests
 
-API = os.environ["API"] + "/api"
+BASE = os.environ.get("API", os.environ.get("REACT_APP_BACKEND_URL", "")).rstrip("/")
+if not BASE:
+    with open("/app/frontend/.env") as f:
+        for line in f:
+            if line.startswith("REACT_APP_BACKEND_URL="):
+                BASE = line.split("=", 1)[1].strip().rstrip("/")
+if BASE.endswith("/api"):
+    API = BASE
+else:
+    API = f"{BASE}/api"
 ADMIN = ("admin@cgstudentportal.in", "CgAdmin@2026")
 ok = fail = 0
 

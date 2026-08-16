@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Bookmark, LayoutDashboard, LogOut, Menu, Sparkles, User, X } from "lucide-react";
+import { Bookmark, LayoutDashboard, LogOut, Menu, Moon, Sparkles, Sun, User, X } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/brand/Logo";
 import { NAV_LINKS } from "@/constants/navigation";
@@ -9,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
   const onLogout = async () => {
@@ -43,6 +45,15 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
+          <button
+            type="button"
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="grid h-10 w-10 place-items-center rounded-xl border border-brand-line text-muted transition-colors duration-200 hover:text-fg"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+
           {user ? (
             <>
               <Link
@@ -126,6 +137,14 @@ export const Navbar = () => {
           className="border-t border-brand-line bg-brand-bg lg:hidden"
         >
           <div className="container-page flex flex-col py-2">
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="mb-2 flex min-h-[48px] items-center justify-between border-b border-brand-line/60 font-heading text-sm text-fg"
+            >
+              <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             {NAV_LINKS.map((l) => (
               <NavLink
                 key={l.to}

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import {
+  Checkbox,
   FormAlert,
   PasswordField,
   SubmitButton,
@@ -21,6 +22,8 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(0);
@@ -38,6 +41,13 @@ export default function Login() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!acceptTerms || !acceptPrivacy) {
+      setError("Please accept the Terms & Conditions and Privacy Policy to continue.");
+      setShake((s) => s + 1);
+      return;
+    }
+
     setBusy(true);
     try {
       await login(email.trim(), password);
@@ -115,6 +125,35 @@ export default function Login() {
           >
             Forgot password?
           </Link>
+        </div>
+
+        <div className="space-y-1 border-t border-brand-line pt-4">
+          <Checkbox
+            id="login-accept-terms"
+            checked={acceptTerms}
+            onChange={(e) => setAcceptTerms(e.target.checked)}
+            label={
+              <>
+                I accept the{" "}
+                <Link to="/legal/terms" target="_blank" className="text-brand-primary hover:text-fg">
+                  Terms &amp; Conditions
+                </Link>
+              </>
+            }
+          />
+          <Checkbox
+            id="login-accept-privacy"
+            checked={acceptPrivacy}
+            onChange={(e) => setAcceptPrivacy(e.target.checked)}
+            label={
+              <>
+                I accept the{" "}
+                <Link to="/legal/privacy" target="_blank" className="text-brand-primary hover:text-fg">
+                  Privacy Policy
+                </Link>
+              </>
+            }
+          />
         </div>
 
         <FormAlert testId="login-error">{error}</FormAlert>

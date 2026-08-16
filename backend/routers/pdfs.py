@@ -149,9 +149,9 @@ async def upload_pdf(
 
     content_type = (file.content_type or "").lower()
     extension = Path(filename).suffix.lower().lstrip(".")
+    if extension != "pdf" or content_type not in {"application/pdf"}:
+        raise HTTPException(status_code=400, detail="Only PDF uploads are supported")
     if extension not in ALLOWED_EXTENSIONS:
-        raise HTTPException(status_code=400, detail="Unsupported file type")
-    if content_type and content_type not in ALLOWED_MIME_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported file type")
 
     data = await file.read()
@@ -159,7 +159,7 @@ async def upload_pdf(
         raise HTTPException(status_code=400, detail="That file is empty")
     if len(data) > MAX_BYTES:
         raise HTTPException(status_code=413, detail="File must be 100 MB or smaller")
-    if content_type == "application/pdf" and not data[:5].startswith(b"%PDF"):
+    if not data[:5].startswith(b"%PDF"):
         raise HTTPException(status_code=400, detail="This file is not a valid PDF")
 
     checksum = hashlib.sha256(data).hexdigest()

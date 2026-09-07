@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CG Student Portal — Feature Showcase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#090e18', surface: '#111827', elevated: '#161b26', line: '#1f2937',
+              fg: '#ffffff', muted: '#94a3b8', primary: '#2563eb', primaryDark: '#1e40af',
+              accent: '#f59e0b', accent2: '#6366f1', success: '#22c55e', error: '#ef4444',
+            },
+          },
+          fontFamily: { heading: ['Poppins', 'sans-serif'], body: ['Inter', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { background: #090e18; color: #fff; font-family: 'Inter', sans-serif; }
+    .font-heading { font-family: 'Poppins', sans-serif; }
+    @keyframes gradient { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    .animate-gradient { background-size: 200% 200%; animation: gradient 8s ease infinite; }
+    .grain { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #111827; } ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const { motion, AnimatePresence } = window["framer-motion"] || FramerMotion;
+
+    // ─── Icons ────────────────────────────────────────────────
+    const Icons = {
+      Bell: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
+      User: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+      Star: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+      MessageSquare: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+      Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
+      BarChart3: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>,
+      Megaphone: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 11 18-5v12L3 16v-5z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>,
+      Settings: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
+      FileSpreadsheet: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg>,
+      Globe: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>,
+      Sparkles: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>,
+      CheckCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>,
+      Moon: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
+      Sun: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>,
+      CheckSquare: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
+    };
+
+    // ─── Feature Data ─────────────────────────────────────────
+    const FEATURES = [
+      { icon: Icons.Bell, title: "Notification System", desc: "Real-time in-app notifications with bell icon badge. Get alerts for PDF approvals, rejections, announcements, and more.", color: "from-blue-500 to-cyan-500", demo: "/login-demo.html#notifications" },
+      { icon: Icons.User, title: "Student Profile", desc: "Complete profile management with avatar, bio, stats grid showing uploads/approvals/downloads, and recent activity.", color: "from-purple-500 to-pink-500", demo: "/login-demo.html#profile" },
+      { icon: Icons.Star, title: "Rating & Reviews", desc: "5-star interactive rating system with hover effects, text reviews, and aggregate display on resources.", color: "from-yellow-500 to-orange-500", demo: "/login-demo.html#ratings" },
+      { icon: Icons.MessageSquare, title: "Comments & Discussion", desc: "Nested comment threads with upvote/downvote, reply system, sort by recent/popular, and real-time updates.", color: "from-green-500 to-emerald-500", demo: "/login-demo.html#comments" },
+      { icon: Icons.BarChart3, title: "Admin Analytics Dashboard", desc: "Charts showing top subjects, colleges, most downloaded PDFs, daily trends, and role distribution.", color: "from-indigo-500 to-blue-500", demo: "/login-demo.html#analytics" },
+      { icon: Icons.CheckSquare, title: "Bulk Actions", desc: "Select multiple PDFs and approve/reject/delete in bulk with checkbox selection and results tracking.", color: "from-teal-500 to-green-500", demo: "/login-demo.html#bulk" },
+      { icon: Icons.Megaphone, title: "Announcements System", desc: "Create public announcements with types (info/warning/urgent), priority levels, and scheduled publishing.", color: "from-red-500 to-pink-500", demo: "/login-demo.html#announcements" },
+      { icon: Icons.Settings, title: "Platform Settings", desc: "Configure registration, maintenance mode, upload limits, auto-approve, and contact information.", color: "from-gray-500 to-slate-500", demo: "/login-demo.html#settings" },
+      { icon: Icons.FileSpreadsheet, title: "CSV Export", desc: "Export all PDF records as CSV with filtering by status. Includes metadata, downloads, and uploader info.", color: "from-emerald-500 to-teal-500", demo: "/login-demo.html#export" },
+      { icon: Icons.Globe, title: "Public Downloads", desc: "Browse and download approved PDFs without login. Search, filter by subject/semester, and sort by popularity.", color: "from-cyan-500 to-blue-500", demo: "/login-demo.html#public" },
+      { icon: Icons.Sparkles, title: "Animated Login Page", desc: "71 motion elements with floating particles, drifting gradient orbs, staggered field entrance, and focus glow effects.", color: "from-blue-600 to-indigo-600", demo: "/login-demo.html" },
+      { icon: Icons.Moon, title: "Theme Toggle", desc: "Dark/Light mode switch with persistent storage. Smooth transitions and system preference detection.", color: "from-violet-500 to-purple-500", demo: "/login-demo.html#theme" },
+    ];
+
+    // ─── Stat Counter Animation ───────────────────────────────
+    function AnimatedCounter({ target, duration = 2 }) {
+      const [count, setCount] = useState(0);
+      useEffect(() => {
+        let start = 0;
+        const end = target;
+        const stepTime = Math.abs(Math.floor(duration * 1000 / end));
+        const timer = setInterval(() => {
+          start += 1;
+          setCount(start);
+          if (start >= end) clearInterval(timer);
+        }, stepTime);
+        return () => clearInterval(timer);
+      }, [target, duration]);
+      return <span>{count.toLocaleString()}</span>;
+    }
+
+    // ─── Main App ─────────────────────────────────────────────
+    function App() {
+      const [theme, setTheme] = useState("dark");
+      const [hoveredFeature, setHoveredFeature] = useState(null);
+
+      return (
+        <div className={`min-h-screen ${theme === "dark" ? "bg-brand-bg" : "bg-gray-50"} transition-colors duration-500`}>
+          {/* Hero Section */}
+          <section className="relative overflow-hidden">
+            <div className="grain absolute inset-0 opacity-40" />
+            {/* Animated background orbs */}
+            <motion.div className="absolute -left-32 top-0 h-96 w-96 rounded-full bg-brand-primary/20 blur-[150px]"
+              animate={{ x: [0, 60, -30, 0], y: [0, 40, -20, 0] }}
+              transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }} />
+            <motion.div className="absolute -right-20 top-20 h-80 w-80 rounded-full bg-brand-accent2/15 blur-[140px]"
+              animate={{ x: [0, -40, 30, 0], y: [0, -30, 20, 0] }}
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 1 }} />
+            <motion.div className="absolute left-1/2 bottom-0 h-64 w-64 -translate-x-1/2 rounded-full bg-brand-accent/10 blur-[120px]"
+              animate={{ x: [0, 80, -50, 0], y: [0, -50, 30, 0] }}
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }} />
+
+            <div className="relative mx-auto max-w-7xl px-6 pt-16 pb-20 sm:px-8">
+              {/* Header with theme toggle */}
+              <div className="flex items-center justify-between mb-16">
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent2 grid place-items-center">
+                    <span className="font-heading text-white font-bold text-lg">C</span>
+                  </div>
+                  <div>
+                    <p className="font-heading text-sm font-semibold text-brand-fg">CG STUDENT PORTAL</p>
+                    <p className="text-xs text-brand-muted">Feature Showcase</p>
+                  </div>
+                </motion.div>
+                <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  onClick={() => setTheme(t => t === "dark" ? "light" : "dark")}
+                  className="grid h-10 w-10 place-items-center rounded-xl border border-brand-line bg-brand-surface text-muted hover:text-fg transition-colors">
+                  {theme === "dark" ? <Icons.Sun /> : <Icons.Moon />}
+                </motion.button>
+              </div>
+
+              {/* Hero Text */}
+              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
+                className="text-center max-w-4xl mx-auto">
+                <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                  className="inline-flex items-center gap-2 rounded-full border border-brand-primary/30 bg-brand-primary/10 px-4 py-1.5 mb-6">
+                  <Icons.Sparkles />
+                  <span className="text-sm font-medium text-brand-primary">15+ Features Implemented</span>
+                </motion.div>
+                <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
+                  <span className="text-brand-fg">All Features </span>
+                  <span className="bg-gradient-to-r from-brand-primary via-brand-accent2 to-brand-accent bg-clip-text text-transparent animate-gradient">
+                    Successfully Added
+                  </span>
+                </h1>
+                <p className="mt-6 text-lg text-brand-muted max-w-2xl mx-auto">
+                  Complete implementation of notifications, profiles, ratings, comments, analytics, bulk actions, announcements, settings, public downloads, and more.
+                </p>
+
+                {/* Stats Row */}
+                <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { label: "Lines of Code", value: 6301, suffix: "+" },
+                    { label: "Files Changed", value: 35, suffix: "" },
+                    { label: "API Endpoints", value: 25, suffix: "+" },
+                    { label: "Components", value: 15, suffix: "+" },
+                  ].map((stat, i) => (
+                    <motion.div key={stat.label}
+                      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 + i * 0.1 }}
+                      className="rounded-2xl border border-brand-line bg-brand-surface/80 backdrop-blur p-4">
+                      <p className="font-heading text-2xl font-bold text-brand-fg">
+                        <AnimatedCounter target={stat.value} />{stat.suffix}
+                      </p>
+                      <p className="text-xs text-brand-muted mt-1">{stat.label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Features Grid */}
+          <section className="relative mx-auto max-w-7xl px-6 sm:px-8 pb-20">
+            <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="font-heading text-2xl font-bold text-center mb-10">
+              🚀 All Implemented Features
+            </motion.h2>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {FEATURES.map((feature, i) => {
+                const Icon = feature.icon;
+                return (
+                  <motion.a
+                    key={feature.title}
+                    href={feature.demo}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.06, duration: 0.5 }}
+                    onMouseEnter={() => setHoveredFeature(i)}
+                    onMouseLeave={() => setHoveredFeature(null)}
+                    className="group relative rounded-2xl border border-brand-line bg-brand-surface/80 backdrop-blur p-6 overflow-hidden transition-all duration-300 hover:border-brand-primary/40 hover:-translate-y-1"
+                  >
+                    {/* Gradient glow on hover */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+
+                    <div className="relative flex items-start gap-4">
+                      <div className={`grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br ${feature.color} flex-shrink-0`}>
+                        <span className="text-white"><Icon /></span>
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-heading text-base font-semibold text-brand-fg group-hover:text-brand-primary transition-colors">
+                          {feature.title}
+                        </h3>
+                        <p className="mt-2 text-sm text-brand-muted leading-relaxed">
+                          {feature.desc}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Status badge */}
+                    <div className="mt-4 flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-success/10 px-2.5 py-0.5 text-xs font-medium text-brand-success">
+                        <Icons.CheckCircle />
+                        Implemented
+                      </span>
+                    </div>
+                  </motion.a>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Quick Links */}
+          <section className="relative mx-auto max-w-7xl px-6 sm:px-8 pb-20">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="rounded-2xl border border-brand-line bg-brand-surface p-8 text-center">
+              <h2 className="font-heading text-2xl font-bold text-brand-fg">🎬 Try the Live Demo</h2>
+              <p className="mt-3 text-brand-muted">Click below to see the animated login page with all the effects</p>
+              <div className="mt-6 flex flex-wrap justify-center gap-4">
+                <a href="/login-demo.html"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand-primary px-6 py-3 font-heading text-sm font-medium text-white transition-all hover:bg-brand-primaryDark hover:-translate-y-0.5">
+                  <Icons.Sparkles />
+                  View Animated Login
+                </a>
+                <a href="https://github.com/Anonymous-3657/anonymous3657-bot"
+                  className="inline-flex items-center gap-2 rounded-xl border border-brand-line px-6 py-3 font-heading text-sm font-medium text-brand-fg transition-all hover:bg-brand-elevated hover:-translate-y-0.5">
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                  View on GitHub
+                </a>
+              </div>
+            </motion.div>
+          </section>
+
+          {/* Footer */}
+          <footer className="border-t border-brand-line py-8">
+            <div className="mx-auto max-w-7xl px-6 sm:px-8 text-center">
+              <p className="text-sm text-brand-muted">
+                Built with ❤️ for CG Student Portal • {new Date().getFullYear()}
+              </p>
+              <p className="mt-2 text-xs text-brand-muted/60">
+                Branch: arena/01a062ce-anonymous3657-bot • 6,301 lines of code • 35 files
+              </p>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

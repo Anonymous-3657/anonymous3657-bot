@@ -141,6 +141,8 @@ export const ADMIN_ENTITIES = {
 export const ADMIN_NAV = [
   { to: "/admin", label: "Overview", icon: "LayoutDashboard" },
   { to: "/admin/pdfs", label: "PDF Approval", icon: "FileCheck2" },
+  { to: "/admin/announcements", label: "Announcements", icon: "Megaphone" },
+  { to: "/admin/settings", label: "Settings", icon: "Settings" },
   ...Object.entries(ADMIN_ENTITIES).map(([key, cfg]) => ({
     to: `/admin/${key}`,
     label: cfg.label,

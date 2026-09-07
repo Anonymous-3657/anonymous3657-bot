@@ -3,6 +3,7 @@ import { Bookmark, LayoutDashboard, LogOut, Menu, Moon, Sparkles, Sun, User, X }
 import { useTheme } from "next-themes";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/brand/Logo";
+import NotificationBell from "@/components/common/NotificationBell";
 import { NAV_LINKS } from "@/constants/navigation";
 import { TESTIDS } from "@/constants/testIds";
 import { useAuth } from "@/context/AuthContext";
@@ -53,6 +54,8 @@ export const Navbar = () => {
           >
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
+
+          {user && <NotificationBell />}
 
           {user ? (
             <>

@@ -23,6 +23,7 @@ import { CategoryCard } from "@/components/cards/CategoryCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { api } from "@/services/api";
 import { BRAND } from "@/config/brand";
+import PublicAnnouncements from "@/components/common/PublicAnnouncements";
 import { HOW_IT_WORKS } from "@/constants/navigation";
 import { TESTIDS } from "@/constants/testIds";
 import { useSeo } from "@/hooks/useSeo";
@@ -77,6 +78,11 @@ export default function Home() {
 
   return (
     <AppShell>
+      {/* Public Announcements */}
+      <div className="container-page pt-4">
+        <PublicAnnouncements />
+      </div>
+
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-brand-line">
         <div className="absolute inset-0" aria-hidden="true">

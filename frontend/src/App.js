@@ -25,6 +25,7 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Bookmarks = lazy(() => import("@/pages/Bookmarks"));
 const StudyBuddy = lazy(() => import("@/pages/StudyBuddy"));
+const Notifications = lazy(() => import("@/pages/Notifications"));
 const UploadPdf = lazy(() => import("@/pages/uploads/UploadPdf"));
 const MyUploads = lazy(() => import("@/pages/uploads/MyUploads"));
 const SyllabusPage = lazy(() => import("@/pages/Syllabus"));
@@ -33,9 +34,12 @@ const AdminPdfs = lazy(() => import("@/pages/admin/AdminPdfs"));
 const AdminColleges = lazy(() => import("@/pages/admin/AdminColleges"));
 const AdminSyllabus = lazy(() => import("@/pages/admin/AdminSyllabus"));
 const AdminTeacherContent = lazy(() => import("@/pages/admin/AdminTeacherContent"));
+const AdminAnnouncements = lazy(() => import("@/pages/admin/AdminAnnouncements"));
+const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
 const TeacherLanding = lazy(() => import("@/pages/teacher-content/TeacherLanding"));
 const TeacherDetail = lazy(() => import("@/pages/teacher-content/TeacherDetail"));
 const TeacherProfile = lazy(() => import("@/pages/teacher-content/TeacherProfile"));
+const PublicPdfs = lazy(() => import("@/pages/PublicMaterials"));
 
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
@@ -63,6 +67,7 @@ export default function App() {
              <Route path="/syllabus" element={<SyllabusPage />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/materials" element={<PublicPdfs />} />
             <Route path="/legal/:page" element={<LegalPage />} />
 
             {/* Authentication */}
@@ -94,6 +99,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <Bookmarks />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <RequireAuth>
+                  <Notifications />
                 </RequireAuth>
               }
             />
@@ -182,6 +195,22 @@ export default function App() {
               element={
                 <RequireStaff>
                   <AdminUsers />
+                </RequireStaff>
+              }
+            />
+            <Route
+              path="/admin/announcements"
+              element={
+                <RequireStaff>
+                  <AdminAnnouncements />
+                </RequireStaff>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <RequireStaff>
+                  <AdminSettings />
                 </RequireStaff>
               }
             />

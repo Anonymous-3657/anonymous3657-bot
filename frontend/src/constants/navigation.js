@@ -2,6 +2,7 @@ export const NAV_LINKS = [
   { label: "Universities", to: "/universities" },
   { label: "Courses", to: "/courses" },
   { label: "Resources", to: "/resources" },
+  { label: "Free Materials", to: "/materials" },
   { label: "Categories", to: "/categories" },
 ];
 
@@ -27,6 +28,7 @@ export const FOOTER_SECTIONS = [
     title: "Resources",
     links: [
       { label: "All Resources", to: "/resources" },
+      { label: "Free Downloads", to: "/materials" },
       { label: "Question Papers", to: "/resources?category=question-papers" },
       { label: "Notes", to: "/resources?category=notes" },
       { label: "Syllabus", to: "/resources?category=syllabus" },

@@ -18,6 +18,7 @@ from auth import (ROLE_PERMISSIONS, get_current_user, require_permission,
                   require_staff)
 from database import db
 from routers.catalog import oid
+from routers.notifications import create_notification, NotificationType
 from security import rate_limit, record_event
 from storage import build_path, get_object, put_object
 
@@ -330,23 +331,57 @@ async def _review(pdf_id: str, actor: dict, updates: dict, event: str, request: 
 @admin_router.post("/{pdf_id}/approve")
 async def approve_pdf(pdf_id: str, request: Request,
                       actor: dict = Depends(require_permission("resource:approve"))):
-    return await _review(pdf_id, actor, {
+    result = await _review(pdf_id, actor, {
         "status": APPROVED,
         "approved_by": str(actor["_id"]),
         "approved_at": now_iso(),
         "rejection_reason": None,
     }, "pdf_approved", request)
 
+    # Send notification to uploader
+    try:
+        doc = await db.pdf_documents.find_one({"_id": oid(pdf_id)})
+        if doc and doc.get("uploaded_by"):
+            await create_notification(
+                user_id=doc["uploaded_by"],
+                type=NotificationType.PDF_APPROVED,
+                title="PDF Approved! 🎉",
+                message=f'Your upload "{doc.get("title")}" has been approved and is now visible to all students.',
+                link="/dashboard/uploads",
+                metadata={"pdf_id": pdf_id},
+            )
+    except Exception:
+        logger.exception("Failed to create approval notification")
+
+    return result
+
 
 @admin_router.post("/{pdf_id}/reject")
 async def reject_pdf(pdf_id: str, payload: RejectPayload, request: Request,
                      actor: dict = Depends(require_permission("resource:approve"))):
-    return await _review(pdf_id, actor, {
+    result = await _review(pdf_id, actor, {
         "status": REJECTED,
         "approved_by": None,
         "approved_at": None,
         "rejection_reason": payload.reason.strip(),
     }, "pdf_rejected", request)
+
+    # Send notification to uploader
+    try:
+        doc = await db.pdf_documents.find_one({"_id": oid(pdf_id)})
+        if doc and doc.get("uploaded_by"):
+            await create_notification(
+                user_id=doc["uploaded_by"],
+                type=NotificationType.PDF_REJECTED,
+                title="PDF Rejected",
+                message=f'Your upload "{doc.get("title")}" was rejected. Reason: {payload.reason.strip()}',
+                link="/dashboard/uploads",
+                metadata={"pdf_id": pdf_id, "reason": payload.reason.strip()},
+            )
+    except Exception:
+        logger.exception("Failed to create rejection notification")
+
+    return result
 
 
 @admin_router.delete("/{pdf_id}")

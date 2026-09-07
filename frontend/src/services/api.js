@@ -32,6 +32,15 @@ export const api = {
   syllabusDetail: (id) => get(`/syllabus/${id}`),
 };
 
+/* ---------- Public (no-auth) endpoints ---------- */
+export const publicApi = {
+  pdfs: (params) => get("/public/pdfs", params),
+  pdfDetail: (id) => get(`/public/pdfs/${id}`),
+  pdfDownloadUrl: (id) => `${API}/public/pdfs/${id}/download`,
+  announcements: (params) => get("/public/announcements", params),
+  stats: () => get("/public/stats"),
+};
+
 export const studentApi = {
   bookmarks: (params) => get("/me/bookmarks", params),
   bookmarkPdfs: () => get("/me/bookmarks/pdfs"),
@@ -47,6 +56,7 @@ export const pdfApi = {
   approved: (params) => get("/pdfs/approved", params),
   detail: (id) => get(`/pdfs/${id}`),
   fileUrl: (id) => `${API}/pdfs/${id}/file`,
+  publicDownloadUrl: (id) => `${API}/public/pdfs/${id}/download`,
   remove: (id) => http.delete(`/pdfs/${id}`).then((r) => r.data),
   upload: (formData, onProgress) =>
     http
@@ -110,5 +120,55 @@ export const adminApi = {
   approvePdf: (id) => http.post(`/admin/pdfs/${id}/approve`).then((r) => r.data),
   rejectPdf: (id, reason) => http.post(`/admin/pdfs/${id}/reject`, { reason }).then((r) => r.data),
   deletePdf: (id) => http.delete(`/admin/pdfs/${id}`).then((r) => r.data),
+  bulkPdfAction: (action, ids, reason) =>
+    http.post("/admin/pdfs/bulk-action", { action, ids, reason }).then((r) => r.data),
   syllabus: syllabusApi,
+
+  /* Advanced admin features */
+  analytics: (params) => get("/admin/analytics", params),
+  activity: (params) => get("/admin/activity", params),
+  exportPdfs: (status) => `${API}/admin/export/pdfs${status ? `?status=${status}` : ""}`,
+
+  /* Announcements */
+  announcements: (params) => get("/admin/announcements", params),
+  createAnnouncement: (body) => http.post("/admin/announcements", body).then((r) => r.data),
+  updateAnnouncement: (id, body) => http.put(`/admin/announcements/${id}`, body).then((r) => r.data),
+  deleteAnnouncement: (id) => http.delete(`/admin/announcements/${id}`).then((r) => r.data),
+
+  /* Platform settings */
+  getSettings: () => get("/admin/settings"),
+  updateSettings: (body) => http.put("/admin/settings", body).then((r) => r.data),
+};
+
+/* ---------- Notifications ---------- */
+export const notificationApi = {
+  list: (params) => get("/me/notifications", params),
+  markAsRead: (id) => http.post(`/me/notifications/${id}/read`).then((r) => r.data),
+  markAllRead: () => http.post("/me/notifications/mark-all-read").then((r) => r.data),
+  delete: (id) => http.delete(`/me/notifications/${id}`).then((r) => r.data),
+};
+
+/* ---------- Profile ---------- */
+export const profileApi = {
+  get: () => get("/me/profile"),
+  update: (body) => http.put("/me/profile", body).then((r) => r.data),
+  changePassword: (body) => http.put("/me/password", body).then((r) => r.data),
+  stats: () => get("/me/stats"),
+};
+
+/* ---------- Ratings ---------- */
+export const ratingApi = {
+  submit: (body) => http.post("/ratings", body).then((r) => r.data),
+  getPdfRatings: (id, params) => get(`/ratings/pdf/${id}`, params),
+  getResourceRatings: (id, params) => get(`/ratings/resource/${id}`, params),
+  delete: (id) => http.delete(`/ratings/${id}`).then((r) => r.data),
+};
+
+/* ---------- Comments ---------- */
+export const commentsApi = {
+  add: (body) => http.post("/comments", body).then((r) => r.data),
+  getPdfComments: (id, params) => get(`/comments/pdf/${id}`, params),
+  getResourceComments: (id, params) => get(`/comments/resource/${id}`, params),
+  vote: (id, body) => http.post(`/comments/${id}/vote`, body).then((r) => r.data),
+  delete: (id) => http.delete(`/comments/${id}`).then((r) => r.data),
 };
